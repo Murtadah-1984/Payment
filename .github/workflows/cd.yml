@@ -127,14 +127,24 @@ jobs:
             VCS_REF=${{ github.sha }}
             VERSION=${{ needs.determine-environment.outputs.version }}
 
+      - name: Verify image exists
+        run: |
+          IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.determine-environment.outputs.version }}"
+          echo "Verifying image exists: $IMAGE_TAG"
+          docker pull "$IMAGE_TAG" || echo "Warning: Could not pull image, SBOM generation may fail"
+
       - name: Generate SBOM
+        id: sbom
+        continue-on-error: true
         uses: anchore/sbom-action@v0
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.determine-environment.outputs.version }}
           format: cyclonedx-json
           output-file: sbom.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SBOM
+        if: steps.sbom.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: sbom
