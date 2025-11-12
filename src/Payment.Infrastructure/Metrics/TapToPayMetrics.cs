@@ -9,7 +9,7 @@ namespace Payment.Infrastructure.Metrics;
 /// </summary>
 public static class TapToPayMetrics
 {
-    private static readonly Counter TapToPayTotal = Metrics
+    private static readonly Counter TapToPayTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_tap_to_pay_total",
             "Total number of Tap-to-Pay transactions",
@@ -18,7 +18,7 @@ public static class TapToPayMetrics
                 LabelNames = new[] { "status" }
             });
 
-    private static readonly Counter TapToPayFailuresTotal = Metrics
+    private static readonly Counter TapToPayFailuresTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_tap_to_pay_failures_total",
             "Total number of Tap-to-Pay transaction failures",
@@ -27,7 +27,7 @@ public static class TapToPayMetrics
                 LabelNames = new[] { "error_type" }
             });
 
-    private static readonly Histogram TapToPayDuration = Metrics
+    private static readonly Histogram TapToPayDuration = Prometheus.Metrics
         .CreateHistogram(
             "payment_tap_to_pay_duration_seconds",
             "Duration of Tap-to-Pay transaction processing in seconds",
@@ -37,13 +37,13 @@ public static class TapToPayMetrics
                 Buckets = new[] { 0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0 } // 100ms to 30s
             });
 
-    private static readonly Counter TapToPayReplayAttempts = Metrics
+    private static readonly Counter TapToPayReplayAttempts = Prometheus.Metrics
         .CreateCounter(
             "payment_tap_to_pay_replay_attempts_total",
             "Total number of detected replay attempts for Tap-to-Pay transactions",
             new CounterConfiguration());
 
-    private static readonly Gauge TapToPayLastTransactionTime = Metrics
+    private static readonly Gauge TapToPayLastTransactionTime = Prometheus.Metrics
         .CreateGauge(
             "payment_tap_to_pay_last_transaction_timestamp",
             "Unix timestamp of last Tap-to-Pay transaction",

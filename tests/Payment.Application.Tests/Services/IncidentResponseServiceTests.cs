@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Payment.Application.DTOs;
 using Payment.Application.Services;
@@ -246,10 +247,8 @@ public class IncidentResponseServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result.TimeRange.Should().Be(timeRange);
         result.TotalIncidents.Should().BeGreaterThan(0);
-        result.IncidentsByProvider.Should().NotBeEmpty();
-        result.IncidentsByFailureType.Should().NotBeEmpty();
+        result.IncidentsByType.Should().NotBeEmpty();
     }
 
     [Fact]

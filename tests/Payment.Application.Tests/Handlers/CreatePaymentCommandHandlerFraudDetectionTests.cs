@@ -23,7 +23,7 @@ public class CreatePaymentCommandHandlerFraudDetectionTests
     private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
     private readonly Mock<Microsoft.Extensions.Logging.ILogger<CreatePaymentCommandHandler>> _loggerMock;
     private readonly CreatePaymentCommandHandler _handler;
-    private readonly DefaultHttpContext _httpContext;
+    private readonly Microsoft.AspNetCore.Http.DefaultHttpContext _httpContext;
 
     public CreatePaymentCommandHandlerFraudDetectionTests()
     {
@@ -406,11 +406,11 @@ public class CreatePaymentCommandHandlerFraudDetectionTests
             "order-456",
             "PROJECT-001",
             "idempotency-key-123",
-            systemFeePercent: 5.0m,
-            customerEmail: "customer@example.com",
-            customerPhone: "+1234567890",
-            customerId: "customer-123",
-            deviceId: "device-456");
+            SystemFeePercent: 5.0m,
+            CustomerEmail: "customer@example.com",
+            CustomerPhone: "+1234567890",
+            CustomerId: "customer-123",
+            DeviceId: "device-456");
 
         var fraudResult = FraudCheckResult.LowRisk();
         FraudCheckRequest? capturedRequest = null;

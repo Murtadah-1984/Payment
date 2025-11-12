@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.FeatureManagement;
 using Payment.Application.Commands;
 using Payment.Application.DTOs;
@@ -18,6 +19,7 @@ public class CreatePaymentCommandHandlerTests
     private readonly Mock<IPaymentOrchestrator> _orchestratorMock;
     private readonly Mock<IFeatureManager> _featureManagerMock;
     private readonly Mock<Microsoft.Extensions.Logging.ILogger<CreatePaymentCommandHandler>> _loggerMock;
+    private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
     private readonly CreatePaymentCommandHandler _handler;
 
     public CreatePaymentCommandHandlerTests()
@@ -25,10 +27,12 @@ public class CreatePaymentCommandHandlerTests
         _orchestratorMock = new Mock<IPaymentOrchestrator>();
         _featureManagerMock = new Mock<IFeatureManager>();
         _loggerMock = new Mock<Microsoft.Extensions.Logging.ILogger<CreatePaymentCommandHandler>>();
+        _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
         _handler = new CreatePaymentCommandHandler(
             _orchestratorMock.Object,
             _featureManagerMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            _httpContextAccessorMock.Object);
         
         _featureManagerMock.Setup(f => f.IsEnabledAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);

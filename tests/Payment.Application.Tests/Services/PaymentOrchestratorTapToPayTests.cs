@@ -4,6 +4,7 @@ using Payment.Application.DTOs;
 using Payment.Application.Services;
 using Payment.Domain.Entities;
 using Payment.Domain.Interfaces;
+using Payment.Domain.Services;
 using Payment.Domain.ValueObjects;
 using Xunit;
 using PaymentEntity = Payment.Domain.Entities.Payment;
@@ -66,11 +67,9 @@ public class PaymentOrchestratorTapToPayTests
                 It.IsAny<IPaymentProvider>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentResult(true, "chg_test_1234567890", null, null));
-        _paymentStatusUpdaterMock.Setup(u => u.UpdateStatusAsync(
+        _paymentStatusUpdaterMock.Setup(u => u.UpdatePaymentStatus(
                 It.IsAny<PaymentEntity>(),
-                It.IsAny<PaymentResult>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+                It.IsAny<PaymentResult>()));
 
         _orchestrator = new PaymentOrchestrator(
             _unitOfWorkMock.Object,
@@ -84,7 +83,9 @@ public class PaymentOrchestratorTapToPayTests
             _paymentStatusUpdaterMock.Object,
             _stateServiceMock.Object,
             _featureManagerMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            new Mock<IMetricsRecorder>().Object,
+            new Mock<IRegulatoryRulesEngine>().Object);
     }
 
     [Fact]

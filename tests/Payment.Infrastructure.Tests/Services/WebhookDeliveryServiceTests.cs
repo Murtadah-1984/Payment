@@ -110,7 +110,7 @@ public class WebhookDeliveryServiceTests
 
         // Assert
         result.Success.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("timeout", StringComparison.OrdinalIgnoreCase);
+        result.ErrorMessage.Should().NotBeNull().And.ContainEquivalentOf("timeout");
         result.HttpStatusCode.Should().BeNull();
     }
 

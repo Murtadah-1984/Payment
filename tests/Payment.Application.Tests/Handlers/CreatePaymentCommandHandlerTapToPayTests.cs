@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
@@ -21,6 +22,7 @@ public class CreatePaymentCommandHandlerTapToPayTests
     private readonly Mock<IPaymentOrchestrator> _orchestratorMock;
     private readonly Mock<IFeatureManager> _featureManagerMock;
     private readonly Mock<ILogger<CreatePaymentCommandHandler>> _loggerMock;
+    private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
     private readonly CreatePaymentCommandHandler _handler;
 
     public CreatePaymentCommandHandlerTapToPayTests()
@@ -28,11 +30,13 @@ public class CreatePaymentCommandHandlerTapToPayTests
         _orchestratorMock = new Mock<IPaymentOrchestrator>();
         _featureManagerMock = new Mock<IFeatureManager>();
         _loggerMock = new Mock<ILogger<CreatePaymentCommandHandler>>();
+        _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
         
         _handler = new CreatePaymentCommandHandler(
             _orchestratorMock.Object,
             _featureManagerMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            _httpContextAccessorMock.Object);
     }
 
     [Fact]

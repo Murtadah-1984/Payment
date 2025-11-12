@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Payment.API.HealthChecks;
 using Payment.Application.Services;

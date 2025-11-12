@@ -49,7 +49,7 @@ public class AnomalyDetectionService : IAnomalyDetectionService
                 anomalies.Add(new
                 {
                     DetectedAt = point.Date,
-                    Type = point.TotalProcessed > threshold ? "Volume Spike" : "Volume Drop",
+                    Type = point.TotalProcessed > (decimal)threshold ? "Volume Spike" : "Volume Drop",
                     Severity = severity,
                     Description = $"Unusual transaction volume detected: {point.TotalProcessed:F2} (expected range: {lowerThreshold:F2} - {threshold:F2})",
                     ExpectedValue = (decimal)mean,

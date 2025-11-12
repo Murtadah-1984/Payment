@@ -674,7 +674,7 @@ public class StripePaymentProvider : IThreeDSecurePaymentProvider
     /// Checks if 3D Secure authentication is required for a payment.
     /// Stripe automatically determines if 3DS is required based on card, amount, and region.
     /// </summary>
-    public async Task<bool> IsThreeDSecureRequiredAsync(
+    public Task<bool> IsThreeDSecureRequiredAsync(
         PaymentRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -689,7 +689,7 @@ public class StripePaymentProvider : IThreeDSecurePaymentProvider
 
         if (request.Metadata == null || !request.Metadata.TryGetValue("payment_method_id", out var paymentMethodId) || string.IsNullOrEmpty(paymentMethodId))
         {
-            return false;
+            return Task.FromResult(false);
         }
 
         // Check amount threshold (3DS typically required for amounts above certain thresholds)
@@ -700,10 +700,10 @@ public class StripePaymentProvider : IThreeDSecurePaymentProvider
         {
             _logger.LogDebug("3DS may be required for Stripe payment: amount {Amount} {Currency} is above threshold {Threshold}",
                 request.Amount.Value, request.Currency.Code, amountThreshold);
-            return true;
+            return Task.FromResult(true);
         }
 
-        return false;
+        return Task.FromResult(false);
     }
 
     private long ConvertToSmallestCurrencyUnit(decimal amount, string currency)

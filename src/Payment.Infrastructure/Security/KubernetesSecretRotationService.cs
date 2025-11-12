@@ -69,7 +69,7 @@ public class KubernetesSecretRotationService : IKubernetesSecretRotationService
         }
     }
 
-    public async Task<bool> IsSecretRotationInProgressAsync(
+    public Task<bool> IsSecretRotationInProgressAsync(
         string secretName,
         CancellationToken cancellationToken = default)
     {
@@ -81,7 +81,7 @@ public class KubernetesSecretRotationService : IKubernetesSecretRotationService
             "Checking if secret rotation is in progress. SecretName: {SecretName}",
             secretName);
 
-        return false; // Placeholder
+        return Task.FromResult(false); // Placeholder
     }
 
     private string GenerateNewSecretValue()

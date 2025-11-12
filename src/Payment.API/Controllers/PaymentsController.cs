@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 using Payment.API.Extensions;
 using Payment.Application.Commands;
 using Payment.Application.DTOs;

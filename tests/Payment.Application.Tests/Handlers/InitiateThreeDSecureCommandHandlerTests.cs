@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Payment.Application.Commands;
 using Payment.Application.Handlers;
@@ -55,7 +56,7 @@ public class InitiateThreeDSecureCommandHandlerTests
             "merchant-123",
             "order-456");
 
-        var cardToken = new CardToken("token-123", "Visa", "****1234", "12/25");
+        var cardToken = new CardToken("token-123", "1234", "Visa");
         payment.SetCardToken(cardToken);
 
         var challenge = new ThreeDSecureChallenge(
@@ -66,7 +67,7 @@ public class InitiateThreeDSecureCommandHandlerTests
             "2.2.0");
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 
@@ -124,11 +125,11 @@ public class InitiateThreeDSecureCommandHandlerTests
             "merchant-123",
             "order-456");
 
-        var cardToken = new CardToken("token-123", "Visa", "****1234", "12/25");
+        var cardToken = new CardToken("token-123", "1234", "Visa");
         payment.SetCardToken(cardToken);
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 
@@ -171,11 +172,11 @@ public class InitiateThreeDSecureCommandHandlerTests
             "merchant-123",
             "order-456");
 
-        var cardToken = new CardToken("token-123", "Visa", "****1234", "12/25");
+        var cardToken = new CardToken("token-123", "1234", "Visa");
         payment.SetCardToken(cardToken);
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 
@@ -217,7 +218,7 @@ public class InitiateThreeDSecureCommandHandlerTests
         var command = new InitiateThreeDSecureCommand(paymentId, returnUrl);
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((PaymentEntity?)null);
 
@@ -246,7 +247,7 @@ public class InitiateThreeDSecureCommandHandlerTests
         // No card token set
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 
@@ -273,11 +274,11 @@ public class InitiateThreeDSecureCommandHandlerTests
             "merchant-123",
             "order-456");
 
-        var cardToken = new CardToken("token-123", "Visa", "****1234", "12/25");
+        var cardToken = new CardToken("token-123", "1234", "Visa");
         payment.SetCardToken(cardToken);
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 

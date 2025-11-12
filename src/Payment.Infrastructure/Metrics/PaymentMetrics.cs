@@ -1,4 +1,5 @@
 using Prometheus;
+using Metrics = Prometheus.Metrics;
 
 namespace Payment.Infrastructure.Metrics;
 
@@ -15,7 +16,7 @@ public static class PaymentMetrics
     /// Total number of payment attempts (successful and failed).
     /// Used to calculate payment success rate.
     /// </summary>
-    private static readonly Counter PaymentTotal = Metrics
+    private static readonly Counter PaymentTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_total",
             "Total number of payment attempts",
@@ -28,7 +29,7 @@ public static class PaymentMetrics
     /// Duration of payment processing in seconds.
     /// Used to calculate average payment processing time (target: <2s).
     /// </summary>
-    private static readonly Histogram PaymentProcessingDuration = Metrics
+    private static readonly Histogram PaymentProcessingDuration = Prometheus.Metrics
         .CreateHistogram(
             "payment_processing_duration_seconds",
             "Duration of payment processing in seconds",
@@ -42,7 +43,7 @@ public static class PaymentMetrics
     /// Provider availability status (1 = available, 0 = unavailable).
     /// Used to track provider availability (target: >99.9%).
     /// </summary>
-    private static readonly Gauge ProviderAvailability = Metrics
+    private static readonly Gauge ProviderAvailability = Prometheus.Metrics
         .CreateGauge(
             "payment_provider_availability",
             "Provider availability status (1 = available, 0 = unavailable)",
@@ -55,7 +56,7 @@ public static class PaymentMetrics
     /// Total number of refunds processed.
     /// Used to calculate refund rate.
     /// </summary>
-    private static readonly Counter RefundTotal = Metrics
+    private static readonly Counter RefundTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_refund_total",
             "Total number of refunds processed",
@@ -67,7 +68,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Duration of refund processing in seconds.
     /// </summary>
-    private static readonly Histogram RefundProcessingDuration = Metrics
+    private static readonly Histogram RefundProcessingDuration = Prometheus.Metrics
         .CreateHistogram(
             "payment_refund_processing_duration_seconds",
             "Duration of refund processing in seconds",
@@ -80,7 +81,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Fraud detection accuracy metrics.
     /// </summary>
-    private static readonly Counter FraudDetectionTotal = Metrics
+    private static readonly Counter FraudDetectionTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_fraud_detection_total",
             "Total number of fraud detection checks",
@@ -97,7 +98,7 @@ public static class PaymentMetrics
     /// API response time in seconds (p50, p95, p99).
     /// Tracked by OpenTelemetry, but we add custom tracking for specific endpoints.
     /// </summary>
-    private static readonly Histogram ApiResponseTime = Metrics
+    private static readonly Histogram ApiResponseTime = Prometheus.Metrics
         .CreateHistogram(
             "payment_api_response_time_seconds",
             "API response time in seconds",
@@ -111,7 +112,7 @@ public static class PaymentMetrics
     /// Database query time in seconds.
     /// Tracked by OpenTelemetry EF Core instrumentation, but we add custom tracking for critical queries.
     /// </summary>
-    private static readonly Histogram DatabaseQueryTime = Metrics
+    private static readonly Histogram DatabaseQueryTime = Prometheus.Metrics
         .CreateHistogram(
             "payment_database_query_time_seconds",
             "Database query execution time in seconds",
@@ -125,7 +126,7 @@ public static class PaymentMetrics
     /// Cache hit/miss counters.
     /// Used to calculate cache hit rate (target: >80%).
     /// </summary>
-    private static readonly Counter CacheOperations = Metrics
+    private static readonly Counter CacheOperations = Prometheus.Metrics
         .CreateCounter(
             "payment_cache_operations_total",
             "Total number of cache operations",
@@ -138,7 +139,7 @@ public static class PaymentMetrics
     /// Total number of errors encountered.
     /// Used to calculate error rate (target: <0.1%).
     /// </summary>
-    private static readonly Counter ErrorTotal = Metrics
+    private static readonly Counter ErrorTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_errors_total",
             "Total number of errors",
@@ -150,7 +151,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Circuit breaker state (0 = closed, 1 = open, 2 = half-open).
     /// </summary>
-    private static readonly Gauge CircuitBreakerState = Metrics
+    private static readonly Gauge CircuitBreakerStateGauge = Prometheus.Metrics
         .CreateGauge(
             "payment_circuit_breaker_state",
             "Circuit breaker state (0 = closed, 1 = open, 2 = half-open)",
@@ -162,7 +163,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Queue depth for payment processing queues.
     /// </summary>
-    private static readonly Gauge QueueDepth = Metrics
+    private static readonly Gauge QueueDepth = Prometheus.Metrics
         .CreateGauge(
             "payment_queue_depth",
             "Current depth of payment processing queues",
@@ -178,7 +179,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Total number of failed authentication attempts.
     /// </summary>
-    private static readonly Counter AuthenticationFailures = Metrics
+    private static readonly Counter AuthenticationFailures = Prometheus.Metrics
         .CreateCounter(
             "payment_authentication_failures_total",
             "Total number of failed authentication attempts",
@@ -190,7 +191,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Total number of rate limit hits.
     /// </summary>
-    private static readonly Counter RateLimitHits = Metrics
+    private static readonly Counter RateLimitHits = Prometheus.Metrics
         .CreateCounter(
             "payment_rate_limit_hits_total",
             "Total number of rate limit hits",
@@ -202,7 +203,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Total number of webhook signature validation failures.
     /// </summary>
-    private static readonly Counter WebhookSignatureFailures = Metrics
+    private static readonly Counter WebhookSignatureFailures = Prometheus.Metrics
         .CreateCounter(
             "payment_webhook_signature_failures_total",
             "Total number of webhook signature validation failures",
@@ -214,7 +215,7 @@ public static class PaymentMetrics
     /// <summary>
     /// Total number of suspicious activity alerts.
     /// </summary>
-    private static readonly Counter SuspiciousActivityAlerts = Metrics
+    private static readonly Counter SuspiciousActivityAlerts = Prometheus.Metrics
         .CreateCounter(
             "payment_suspicious_activity_alerts_total",
             "Total number of suspicious activity alerts",
@@ -309,7 +310,7 @@ public static class PaymentMetrics
             CircuitBreakerState.HalfOpen => 2.0,
             _ => 0.0
         };
-        CircuitBreakerState.WithLabels(provider).Set(stateValue);
+        CircuitBreakerStateGauge.WithLabels(provider).Set(stateValue);
     }
 
     /// <summary>

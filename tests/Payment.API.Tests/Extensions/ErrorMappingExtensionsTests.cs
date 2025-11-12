@@ -32,14 +32,14 @@ public class ErrorMappingExtensionsTests
             null,
             DateTime.UtcNow,
             DateTime.UtcNow);
-        var result = Result<PaymentDto>.Success(dto);
+        var result = Payment.Domain.Common.Result<PaymentDto>.Success(dto);
 
         // Act
         var actionResult = result.ToActionResult();
 
         // Assert
-        actionResult.Should().BeOfType<OkObjectResult>();
-        var okResult = actionResult as OkObjectResult;
+        actionResult.Result.Should().BeOfType<OkObjectResult>();
+        var okResult = actionResult.Result as OkObjectResult;
         okResult!.Value.Should().Be(dto);
         okResult.StatusCode.Should().Be(200);
     }
@@ -48,14 +48,14 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_ShouldReturnNotFound_WhenPaymentNotFound()
     {
         // Arrange
-        var result = Result<PaymentDto>.Failure(ErrorCodes.PaymentNotFound, "Payment not found");
+        var result = Payment.Domain.Common.Result<PaymentDto>.Failure(Payment.Domain.Common.ErrorCodes.PaymentNotFound, "Payment not found");
 
         // Act
         var actionResult = result.ToActionResult();
 
         // Assert
-        actionResult.Should().BeOfType<NotFoundObjectResult>();
-        var notFoundResult = actionResult as NotFoundObjectResult;
+        actionResult.Result.Should().BeOfType<NotFoundObjectResult>();
+        var notFoundResult = actionResult.Result as NotFoundObjectResult;
         notFoundResult!.StatusCode.Should().Be(404);
     }
 
@@ -63,14 +63,14 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_ShouldReturnBadRequest_WhenValidationError()
     {
         // Arrange
-        var result = Result<PaymentDto>.Failure(ErrorCodes.InvalidAmount, "Invalid amount");
+        var result = Payment.Domain.Common.Result<PaymentDto>.Failure(Payment.Domain.Common.ErrorCodes.InvalidAmount, "Invalid amount");
 
         // Act
         var actionResult = result.ToActionResult();
 
         // Assert
-        actionResult.Should().BeOfType<BadRequestObjectResult>();
-        var badRequestResult = actionResult as BadRequestObjectResult;
+        actionResult.Result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = actionResult.Result as BadRequestObjectResult;
         badRequestResult!.StatusCode.Should().Be(400);
     }
 
@@ -78,14 +78,14 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_ShouldReturnConflict_WhenIdempotencyKeyMismatch()
     {
         // Arrange
-        var result = Result<PaymentDto>.Failure(ErrorCodes.IdempotencyKeyMismatch, "Idempotency key mismatch");
+        var result = Payment.Domain.Common.Result<PaymentDto>.Failure(Payment.Domain.Common.ErrorCodes.IdempotencyKeyMismatch, "Idempotency key mismatch");
 
         // Act
         var actionResult = result.ToActionResult();
 
         // Assert
-        actionResult.Should().BeOfType<ConflictObjectResult>();
-        var conflictResult = actionResult as ConflictObjectResult;
+        actionResult.Result.Should().BeOfType<ConflictObjectResult>();
+        var conflictResult = actionResult.Result as ConflictObjectResult;
         conflictResult!.StatusCode.Should().Be(409);
     }
 
@@ -93,14 +93,14 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_ShouldReturnBadGateway_WhenProviderError()
     {
         // Arrange
-        var result = Result<PaymentDto>.Failure(ErrorCodes.ProviderError, "Provider error");
+        var result = Payment.Domain.Common.Result<PaymentDto>.Failure(Payment.Domain.Common.ErrorCodes.ProviderError, "Provider error");
 
         // Act
         var actionResult = result.ToActionResult();
 
         // Assert
-        actionResult.Should().BeOfType<ObjectResult>();
-        var objectResult = actionResult as ObjectResult;
+        actionResult.Result.Should().BeOfType<ObjectResult>();
+        var objectResult = actionResult.Result as ObjectResult;
         objectResult!.StatusCode.Should().Be(502);
     }
 
@@ -108,14 +108,14 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_ShouldReturnInternalServerError_WhenUnknownError()
     {
         // Arrange
-        var result = Result<PaymentDto>.Failure("UNKNOWN_ERROR", "Unknown error");
+        var result = Payment.Domain.Common.Result<PaymentDto>.Failure("UNKNOWN_ERROR", "Unknown error");
 
         // Act
         var actionResult = result.ToActionResult();
 
         // Assert
-        actionResult.Should().BeOfType<ObjectResult>();
-        var objectResult = actionResult as ObjectResult;
+        actionResult.Result.Should().BeOfType<ObjectResult>();
+        var objectResult = actionResult.Result as ObjectResult;
         objectResult!.StatusCode.Should().Be(500);
     }
 
@@ -123,7 +123,7 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_NonGeneric_ShouldReturnOkResult_WhenResultIsSuccess()
     {
         // Arrange
-        var result = Result.Success();
+        var result = Payment.Domain.Common.Result.Success();
 
         // Act
         var actionResult = result.ToActionResult();
@@ -138,7 +138,7 @@ public class ErrorMappingExtensionsTests
     public void ToActionResult_NonGeneric_ShouldReturnNotFound_WhenPaymentNotFound()
     {
         // Arrange
-        var result = Result.Failure(ErrorCodes.PaymentNotFound, "Payment not found");
+        var result = Payment.Domain.Common.Result.Failure(Payment.Domain.Common.ErrorCodes.PaymentNotFound, "Payment not found");
 
         // Act
         var actionResult = result.ToActionResult();

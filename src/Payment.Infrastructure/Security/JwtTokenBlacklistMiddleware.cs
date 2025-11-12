@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Payment.Domain.Interfaces;
 using System.IdentityModel.Tokens.Jwt;

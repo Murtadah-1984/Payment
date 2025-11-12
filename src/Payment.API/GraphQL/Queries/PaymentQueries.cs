@@ -33,7 +33,7 @@ public class PaymentQueries
         var query = new GetPaymentByIdQuery(paymentId);
         var result = await mediator.Send(query, cancellationToken);
 
-        if (result.IsFailure)
+        if (!result.IsSuccess)
         {
             return null;
         }

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Payment.Application.Common;
 using Payment.Application.DTOs;
 using Payment.Application.Handlers;
 using Payment.Application.Queries;
@@ -32,7 +33,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldReturnAllProviders_WhenNoFiltersProvided()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, null, null);
 
@@ -53,7 +54,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldFilterByCountry_WhenCountryProvided()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery("AE", null, null);
 
@@ -73,7 +74,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldFilterByCurrency_WhenCurrencyProvided()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, "USD", null);
 
@@ -92,7 +93,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldFilterByPaymentMethod_WhenMethodProvided()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, null, "Wallet");
 
@@ -110,7 +111,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldFilterByCountryAndMethod_WhenBothProvided()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery("IQ", null, "Card");
 
@@ -130,7 +131,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldFilterByAllFilters_WhenAllProvided()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery("IQ", "USD", "Card");
 
@@ -152,7 +153,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldReturnEmptyList_WhenNoProvidersMatchFilters()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery("XX", null, null);
 
@@ -168,7 +169,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldReturnEmptyList_WhenCurrencyNotFound()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, "EUR", null);
 
@@ -184,7 +185,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldReturnEmptyList_WhenMethodNotFound()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, null, "BankTransfer");
 
@@ -200,7 +201,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldHandleCaseInsensitiveCountryFilter()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery("ae", null, null); // lowercase
 
@@ -217,7 +218,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldHandleCaseInsensitiveCurrencyFilter()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, "usd", null); // lowercase
 
@@ -234,7 +235,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldHandleCaseInsensitiveMethodFilter()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery(null, null, "card"); // lowercase
 
@@ -304,7 +305,7 @@ public class GetProvidersHandlerTests
     public async Task Handle_ShouldReturnEmptyStringFilters_AsNoFilter()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetProvidersHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetProvidersQuery("", "", "");
 

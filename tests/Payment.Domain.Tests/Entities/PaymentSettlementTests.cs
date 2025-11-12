@@ -133,10 +133,7 @@ public class PaymentSettlementTests
     }
 
     [Theory]
-    [InlineData("USD", 100m, 1.0m)]
-    [InlineData("EUR", 92m, 0.92m)]
-    [InlineData("GBP", 79m, 0.79m)]
-    [InlineData("JPY", 15000m, 150m)]
+    [MemberData(nameof(GetCurrencyTestData))]
     public void SetSettlement_ShouldHandleVariousCurrencies(
         string currencyCode,
         decimal settlementAmount,
@@ -153,6 +150,14 @@ public class PaymentSettlementTests
         payment.SettlementCurrency!.Code.Should().Be(currencyCode);
         payment.SettlementAmount.Should().Be(settlementAmount);
         payment.ExchangeRate.Should().Be(exchangeRate);
+    }
+
+    public static IEnumerable<object[]> GetCurrencyTestData()
+    {
+        yield return new object[] { "USD", 100m, 1.0m };
+        yield return new object[] { "EUR", 92m, 0.92m };
+        yield return new object[] { "GBP", 79m, 0.79m };
+        yield return new object[] { "JPY", 15000m, 150m };
     }
 
     [Fact]

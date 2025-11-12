@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Payment.API.Controllers;
+using Payment.Application.Commands;
 using Payment.Application.DTOs;
 using Payment.Application.Queries;
 using Payment.Application.Services;

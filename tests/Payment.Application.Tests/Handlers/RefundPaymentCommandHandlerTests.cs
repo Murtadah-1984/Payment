@@ -23,6 +23,7 @@ public class RefundPaymentCommandHandlerTests
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IPaymentRepository> _paymentRepositoryMock;
     private readonly Mock<ILogger<RefundPaymentCommandHandler>> _loggerMock;
+    private readonly Mock<IMetricsRecorder> _metricsRecorderMock;
     private readonly IPaymentStateService _stateService;
     private readonly RefundPaymentCommandHandler _handler;
 
@@ -31,9 +32,10 @@ public class RefundPaymentCommandHandlerTests
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _paymentRepositoryMock = new Mock<IPaymentRepository>();
         _loggerMock = new Mock<ILogger<RefundPaymentCommandHandler>>();
+        _metricsRecorderMock = new Mock<IMetricsRecorder>();
         _stateService = MockPaymentStateService.CreatePermissive();
         _unitOfWorkMock.Setup(u => u.Payments).Returns(_paymentRepositoryMock.Object);
-        _handler = new RefundPaymentCommandHandler(_unitOfWorkMock.Object, _stateService, _loggerMock.Object);
+        _handler = new RefundPaymentCommandHandler(_unitOfWorkMock.Object, _stateService, _loggerMock.Object, _metricsRecorderMock.Object);
     }
 
     [Fact]

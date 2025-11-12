@@ -8,6 +8,7 @@ using Payment.Domain.Enums;
 using Payment.Domain.Interfaces;
 using Payment.Domain.ValueObjects;
 using Xunit;
+using PaymentEntity = Payment.Domain.Entities.Payment;
 
 namespace Payment.Application.Tests.Services;
 
@@ -67,8 +68,7 @@ public class PaymentWebhookNotifierTests
     public async Task NotifyPaymentStatusChangeAsync_ShouldUseMerchantConfig_WhenNoMetadata()
     {
         // Arrange
-        var payment = CreateTestPayment();
-        payment.MerchantId = "merchant-123";
+        var payment = CreateTestPayment("merchant-123");
         var eventType = "payment.completed";
 
         _configurationMock
@@ -260,9 +260,8 @@ public class PaymentWebhookNotifierTests
     public async Task NotifyPaymentStatusChangeAsync_ShouldPrioritizeMetadata_OverConfig()
     {
         // Arrange
-        var payment = CreateTestPayment();
+        var payment = CreateTestPayment("merchant-123");
         payment.Metadata["webhook_url"] = "https://metadata.example.com/webhook";
-        payment.MerchantId = "merchant-123";
 
         _configurationMock
             .Setup(c => c["Webhooks:Merchants:merchant-123:Url"])
@@ -293,15 +292,15 @@ public class PaymentWebhookNotifierTests
             Times.Once);
     }
 
-    private static Payment CreateTestPayment()
+    private static PaymentEntity CreateTestPayment(string merchantId = "merchant-123")
     {
-        return new Payment(
+        return new PaymentEntity(
             PaymentId.NewId(),
             Amount.FromDecimal(100.50m),
             Currency.USD,
             PaymentMethod.CreditCard,
             PaymentProvider.ZainCash,
-            "merchant-123",
+            merchantId,
             "order-456");
     }
 }

@@ -46,7 +46,7 @@ public class FraudDetectionService : IFraudDetectionService
                         "Fraud detection service retry {RetryCount} after {Delay}s. Status: {StatusCode}",
                         retryCount,
                         timespan.TotalSeconds,
-                        outcome.Result?.StatusCode ?? outcome.Exception?.GetType().Name);
+                        outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.GetType().Name);
                 });
 
         // Circuit breaker: Open after 5 failures, stay open for 30 seconds
@@ -61,7 +61,7 @@ public class FraudDetectionService : IFraudDetectionService
                     _logger.LogError(
                         "Fraud detection service circuit breaker opened for {Duration}s. Status: {StatusCode}",
                         duration.TotalSeconds,
-                        outcome.Result?.StatusCode ?? outcome.Exception?.GetType().Name);
+                        outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.GetType().Name);
                 },
                 onReset: () =>
                 {

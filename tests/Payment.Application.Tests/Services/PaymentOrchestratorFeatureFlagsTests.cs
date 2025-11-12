@@ -4,6 +4,7 @@ using Microsoft.FeatureManagement;
 using Payment.Application.DTOs;
 using Payment.Application.Services;
 using Payment.Domain.Interfaces;
+using Payment.Domain.Services;
 using Payment.Domain.ValueObjects;
 using Xunit;
 
@@ -56,7 +57,9 @@ public class PaymentOrchestratorFeatureFlagsTests
             _paymentStatusUpdaterMock.Object,
             _stateServiceMock.Object,
             _featureManagerMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            new Mock<IMetricsRecorder>().Object,
+            new Mock<IRegulatoryRulesEngine>().Object);
     }
 
     [Fact]
@@ -185,7 +188,7 @@ public class PaymentOrchestratorFeatureFlagsTests
             .Returns(payment);
         
         _unitOfWorkMock.Setup(u => u.Payments.AddAsync(It.IsAny<Domain.Entities.Payment>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync((Domain.Entities.Payment p, CancellationToken ct) => p);
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         
@@ -198,12 +201,12 @@ public class PaymentOrchestratorFeatureFlagsTests
                 It.IsAny<Domain.Entities.Payment>(), 
                 It.IsAny<IPaymentProvider>(), 
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentResult { Success = true, TransactionId = "txn-123" });
+            .ReturnsAsync(new PaymentResult(Success: true, TransactionId: "txn-123", FailureReason: null, ProviderMetadata: null));
         
         _unitOfWorkMock.Setup(u => u.Payments.UpdateAsync(It.IsAny<Domain.Entities.Payment>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         _unitOfWorkMock.Setup(u => u.IdempotentRequests.AddAsync(It.IsAny<Domain.Entities.IdempotentRequest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync((Domain.Entities.IdempotentRequest r, CancellationToken ct) => r);
     }
 
     private static CreatePaymentDto CreatePaymentRequestWithSplitRule()
@@ -219,15 +222,13 @@ public class PaymentOrchestratorFeatureFlagsTests
             "PROJECT-001",
             "idempotency-key-123",
             null,
-            new SplitRuleDto
-            {
-                SystemFeePercent = 10m,
-                Accounts = new List<SplitAccountDto>
+            new SplitRuleDto(
+                SystemFeePercent: 10m,
+                Accounts: new List<SplitAccountDto>
                 {
-                    new SplitAccountDto { AccountType = "SystemOwner", AccountIdentifier = "sys-1", Percentage = 10m },
-                    new SplitAccountDto { AccountType = "Owner", AccountIdentifier = "owner-1", Percentage = 90m }
-                }
-            },
+                    new SplitAccountDto(AccountType: "SystemOwner", AccountIdentifier: "sys-1", Percentage: 10m),
+                    new SplitAccountDto(AccountType: "Owner", AccountIdentifier: "owner-1", Percentage: 90m)
+                }),
             null,
             null,
             null,

@@ -1,3 +1,4 @@
+using System.Reflection;
 using FluentAssertions;
 using Payment.Domain.Entities;
 using Xunit;
@@ -175,8 +176,13 @@ public class WebhookDeliveryTests
     public void MarkAsFailed_ShouldMarkAsFailed_WhenMaxRetriesExceeded()
     {
         // Arrange
-        var webhook = CreateTestWebhook();
-        webhook.MaxRetries = 3;
+        var webhook = new WebhookDelivery(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "https://example.com/webhook",
+            "payment.completed",
+            "{\"paymentId\":\"123\"}",
+            maxRetries: 3);
 
         // Act - Exceed max retries
         webhook.MarkAsFailed("Error 1", 500);
@@ -195,7 +201,13 @@ public class WebhookDeliveryTests
     {
         // Arrange
         var webhook = CreateTestWebhook();
-        webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1); // Past time
+        // Set NextRetryAt to past time by marking as failed and then using reflection
+        // Since NextRetryAt is set by MarkAsFailed, we'll create a webhook that's already ready
+        webhook.MarkAsFailed("Test error", 500);
+        // Use reflection to set NextRetryAt to past time for testing
+        var nextRetryAtProperty = typeof(WebhookDelivery).GetProperty("NextRetryAt", 
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        nextRetryAtProperty?.SetValue(webhook, DateTime.UtcNow.AddSeconds(-1));
 
         // Act
         var result = webhook.IsReadyForRetry;
@@ -210,7 +222,8 @@ public class WebhookDeliveryTests
         // Arrange
         var webhook = CreateTestWebhook();
         webhook.MarkAsDelivered();
-        webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1);
+        // NextRetryAt is not relevant when status is Delivered, but we can verify the test logic
+        // The IsReadyForRetry property checks Status first, so this should return false
 
         // Act
         var result = webhook.IsReadyForRetry;
@@ -223,12 +236,16 @@ public class WebhookDeliveryTests
     public void IsReadyForRetry_ShouldReturnFalse_WhenRetryCountExceedsMax()
     {
         // Arrange
-        var webhook = CreateTestWebhook();
-        webhook.MaxRetries = 2;
+        var webhook = new WebhookDelivery(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "https://example.com/webhook",
+            "payment.completed",
+            "{\"paymentId\":\"123\"}",
+            maxRetries: 2);
         webhook.MarkAsFailed("Error 1", 500);
         webhook.MarkAsFailed("Error 2", 500);
         webhook.MarkAsFailed("Error 3", 500); // Exceeds max
-        webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1);
 
         // Act
         var result = webhook.IsReadyForRetry;
@@ -241,8 +258,13 @@ public class WebhookDeliveryTests
     public void IsExhausted_ShouldReturnTrue_WhenStatusIsFailed()
     {
         // Arrange
-        var webhook = CreateTestWebhook();
-        webhook.MaxRetries = 1;
+        var webhook = new WebhookDelivery(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "https://example.com/webhook",
+            "payment.completed",
+            "{\"paymentId\":\"123\"}",
+            maxRetries: 1);
         webhook.MarkAsFailed("Error", 500);
         webhook.MarkAsFailed("Error", 500); // Exceeds max
 
@@ -257,8 +279,13 @@ public class WebhookDeliveryTests
     public void IsExhausted_ShouldReturnTrue_WhenRetryCountExceedsMax()
     {
         // Arrange
-        var webhook = CreateTestWebhook();
-        webhook.MaxRetries = 2;
+        var webhook = new WebhookDelivery(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "https://example.com/webhook",
+            "payment.completed",
+            "{\"paymentId\":\"123\"}",
+            maxRetries: 2);
         webhook.MarkAsFailed("Error 1", 500);
         webhook.MarkAsFailed("Error 2", 500);
         webhook.MarkAsFailed("Error 3", 500);

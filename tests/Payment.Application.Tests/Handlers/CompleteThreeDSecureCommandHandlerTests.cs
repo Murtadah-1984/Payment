@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using Microsoft.Extensions.Logging;
 using Payment.Application.Commands;
 using Payment.Application.Handlers;
 using Payment.Domain.Entities;
@@ -73,7 +74,7 @@ public class CompleteThreeDSecureCommandHandlerTests
             version: "2.2.0");
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 
@@ -143,7 +144,7 @@ public class CompleteThreeDSecureCommandHandlerTests
             failureReason: "Authentication failed");
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 
@@ -184,7 +185,7 @@ public class CompleteThreeDSecureCommandHandlerTests
             "md");
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((PaymentEntity?)null);
 
@@ -220,7 +221,7 @@ public class CompleteThreeDSecureCommandHandlerTests
             version: "2.2.0");
 
         _paymentRepositoryMock.Setup(r => r.GetByIdAsync(
-                PaymentId.FromGuid(paymentId),
+                paymentId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payment);
 

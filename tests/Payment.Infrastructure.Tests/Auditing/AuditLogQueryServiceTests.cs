@@ -251,70 +251,76 @@ public class AuditLogQueryServiceTests : IDisposable
     {
         var logs = new List<AuditLog>
         {
-            new AuditLog(
-                Guid.NewGuid(),
+            CreateAuditLogWithTimestamp(
                 "user1",
                 "PaymentCreated",
                 "Payment",
-                Guid.NewGuid(),
                 "192.168.1.1",
                 "Mozilla/5.0",
-                new Dictionary<string, object> { { "Amount", 100.00m } })
-            {
-                Timestamp = DateTime.UtcNow.AddHours(-3)
-            },
-            new AuditLog(
-                Guid.NewGuid(),
+                new Dictionary<string, object> { { "Amount", 100.00m } },
+                DateTime.UtcNow.AddHours(-3)),
+            CreateAuditLogWithTimestamp(
                 "user1",
                 "PaymentRefunded",
                 "Payment",
-                Guid.NewGuid(),
                 "192.168.1.1",
                 "Mozilla/5.0",
-                new Dictionary<string, object> { { "Amount", 50.00m } })
-            {
-                Timestamp = DateTime.UtcNow.AddHours(-2)
-            },
-            new AuditLog(
-                Guid.NewGuid(),
+                new Dictionary<string, object> { { "Amount", 50.00m } },
+                DateTime.UtcNow.AddHours(-2)),
+            CreateAuditLogWithTimestamp(
                 "user2",
                 "PaymentCreated",
                 "Payment",
-                Guid.NewGuid(),
                 "192.168.1.2",
                 "Chrome/1.0",
-                new Dictionary<string, object> { { "Amount", 200.00m } })
-            {
-                Timestamp = DateTime.UtcNow.AddHours(-1)
-            },
-            new AuditLog(
-                Guid.NewGuid(),
+                new Dictionary<string, object> { { "Amount", 200.00m } },
+                DateTime.UtcNow.AddHours(-1)),
+            CreateAuditLogWithTimestamp(
                 "user3",
                 "UnauthorizedAccess",
                 "Security",
-                Guid.NewGuid(),
                 "10.0.0.1",
                 "Unknown",
-                new Dictionary<string, object> { { "Reason", "Invalid token" } })
-            {
-                Timestamp = DateTime.UtcNow.AddMinutes(-30)
-            },
-            new AuditLog(
-                Guid.NewGuid(),
+                new Dictionary<string, object> { { "Reason", "Invalid token" } },
+                DateTime.UtcNow.AddMinutes(-30)),
+            CreateAuditLogWithTimestamp(
                 "user4",
                 "PaymentCreated",
                 "Payment",
-                Guid.NewGuid(),
                 "192.168.1.3",
                 "Safari/1.0",
-                new Dictionary<string, object> { { "Amount", 300.00m } })
-            {
-                Timestamp = DateTime.UtcNow
-            }
+                new Dictionary<string, object> { { "Amount", 300.00m } },
+                DateTime.UtcNow)
         };
 
         _context.AuditLogs.AddRange(logs);
         _context.SaveChanges();
+    }
+
+    private AuditLog CreateAuditLogWithTimestamp(
+        string userId,
+        string action,
+        string entityType,
+        string? ipAddress,
+        string? userAgent,
+        Dictionary<string, object>? changes,
+        DateTime timestamp)
+    {
+        var log = new AuditLog(
+            Guid.NewGuid(),
+            userId,
+            action,
+            entityType,
+            Guid.NewGuid(),
+            ipAddress,
+            userAgent,
+            changes);
+        
+        // Use reflection to set the read-only Timestamp property
+        var timestampProperty = typeof(AuditLog).GetProperty("Timestamp", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        timestampProperty!.SetValue(log, timestamp);
+        
+        return log;
     }
 
     public void Dispose()

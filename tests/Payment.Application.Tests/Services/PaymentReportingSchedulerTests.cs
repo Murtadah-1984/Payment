@@ -53,7 +53,9 @@ public class PaymentReportingSchedulerTests
         var result = await _scheduler.GenerateMonthlyReportAsync(reportMonth);
 
         // Assert
-        Assert.NotNull(result);
+        Assert.NotEqual(Guid.Empty, result.ReportId);
+        Assert.NotNull(result.ReportUrl);
+        Assert.NotEmpty(result.ReportUrl);
         _reportRepositoryMock.Verify(r => r.AggregateMonthlyAsync(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _reportBuilderMock.Verify(b => b.GeneratePdfAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -116,9 +118,9 @@ public class PaymentReportingSchedulerTests
         var result = await _scheduler.GenerateMonthlyReportAsync(reportMonth);
 
         // Assert
-        Assert.NotNull(result);
         Assert.NotEqual(Guid.Empty, result.ReportId);
         Assert.NotNull(result.ReportUrl);
+        Assert.NotEmpty(result.ReportUrl);
         
         _reportRepositoryMock.Verify(r => r.AggregateMonthlyAsync(reportMonth, null, It.IsAny<CancellationToken>()), Times.Once);
         _reportBuilderMock.Verify(b => b.GeneratePdfAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);

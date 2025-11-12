@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Payment.Application.Common;
 using Payment.Application.DTOs;
 using Payment.Application.Handlers;
 using Payment.Application.Queries;
@@ -32,7 +33,7 @@ public class GetPaymentProvidersByCountryQueryHandlerTests
     public async Task Handle_ShouldReturnProviders_ForIraq()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetPaymentProvidersByCountryQueryHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetPaymentProvidersByCountryQuery("IQ");
 
@@ -52,7 +53,7 @@ public class GetPaymentProvidersByCountryQueryHandlerTests
     public async Task Handle_ShouldReturnProviders_ForKuwait()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetPaymentProvidersByCountryQueryHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetPaymentProvidersByCountryQuery("KW");
 
@@ -73,7 +74,7 @@ public class GetPaymentProvidersByCountryQueryHandlerTests
     public async Task Handle_ShouldReturnProviders_ForUAE()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetPaymentProvidersByCountryQueryHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetPaymentProvidersByCountryQuery("AE");
 
@@ -94,7 +95,7 @@ public class GetPaymentProvidersByCountryQueryHandlerTests
     public async Task Handle_ShouldReturnEmptyList_ForUnsupportedCountry()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetPaymentProvidersByCountryQueryHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetPaymentProvidersByCountryQuery("XX");
 
@@ -163,7 +164,7 @@ public class GetPaymentProvidersByCountryQueryHandlerTests
     public async Task Handle_ShouldHandleCaseInsensitiveCountryCode()
     {
         // Arrange
-        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null);
+        _optionsMock.Setup(o => o.Value).Returns((PaymentProviderCatalogOptions?)null!);
         var handler = new GetPaymentProvidersByCountryQueryHandler(_loggerMock.Object, _optionsMock.Object);
         var query = new GetPaymentProvidersByCountryQuery("iq"); // lowercase
 

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 using Moq;
 using Payment.Application.Services;
 using Payment.Domain.Interfaces;
@@ -9,6 +10,15 @@ namespace Payment.Application.Tests.Services;
 
 public class PaymentProviderFactoryTests
 {
+    private readonly Mock<IFeatureManager> _featureManagerMock;
+
+    public PaymentProviderFactoryTests()
+    {
+        _featureManagerMock = new Mock<IFeatureManager>();
+        _featureManagerMock.Setup(f => f.IsEnabledAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+    }
+
     [Fact]
     public void Create_ShouldReturnZainCashProvider_WhenZainCashRequested()
     {
@@ -19,7 +29,7 @@ public class PaymentProviderFactoryTests
         
         services.AddScoped<IPaymentProvider>(_ => zainCashProvider.Object);
         var serviceProvider = services.BuildServiceProvider();
-        var factory = new PaymentProviderFactory(serviceProvider);
+        var factory = new PaymentProviderFactory(serviceProvider, _featureManagerMock.Object);
 
         // Act
         var result = factory.Create("ZainCash");
@@ -39,7 +49,7 @@ public class PaymentProviderFactoryTests
         
         services.AddScoped<IPaymentProvider>(_ => stripeProvider.Object);
         var serviceProvider = services.BuildServiceProvider();
-        var factory = new PaymentProviderFactory(serviceProvider);
+        var factory = new PaymentProviderFactory(serviceProvider, _featureManagerMock.Object);
 
         // Act
         var result = factory.Create("Stripe");
@@ -55,7 +65,7 @@ public class PaymentProviderFactoryTests
         // Arrange
         var services = new ServiceCollection();
         var serviceProvider = services.BuildServiceProvider();
-        var factory = new PaymentProviderFactory(serviceProvider);
+        var factory = new PaymentProviderFactory(serviceProvider, _featureManagerMock.Object);
 
         // Act & Assert
         Assert.Throws<NotSupportedException>(() => factory.Create("NonExistentProvider"));
@@ -74,7 +84,7 @@ public class PaymentProviderFactoryTests
         services.AddScoped<IPaymentProvider>(_ => provider1.Object);
         services.AddScoped<IPaymentProvider>(_ => provider2.Object);
         var serviceProvider = services.BuildServiceProvider();
-        var factory = new PaymentProviderFactory(serviceProvider);
+        var factory = new PaymentProviderFactory(serviceProvider, _featureManagerMock.Object);
 
         // Act
         var result = factory.GetAvailableProviders().ToList();

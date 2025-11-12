@@ -281,14 +281,14 @@ public class PaymentProcessingServiceFxTests
 
     private static PaymentEntity CreatePayment(string currency, decimal amount)
     {
-        return new Payment(
-            id: PaymentId.NewId(),
-            amount: new Amount(amount),
-            currency: new Currency(currency),
-            paymentMethod: PaymentMethod.Card,
-            provider: PaymentProvider.Stripe,
-            merchantId: "merchant-123",
-            orderId: "order-456");
+        return new PaymentEntity(
+            PaymentId.NewId(),
+            Amount.FromDecimal(amount),
+            Currency.FromCode(currency),
+            PaymentMethod.CreditCard,
+            PaymentProvider.Stripe,
+            "merchant-123",
+            "order-456");
     }
 }
 

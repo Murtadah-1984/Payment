@@ -189,16 +189,18 @@ public class SettlementServiceTests
     }
 
     [Theory]
-    [InlineData("GBP", "USD", 1.27m, 127m)]
-    [InlineData("JPY", "USD", 0.0067m, 0.67m)]
-    [InlineData("EUR", "GBP", 0.85m, 85m)]
+    [InlineData("GBP", "USD", "1.27", "127")]
+    [InlineData("JPY", "USD", "0.0067", "0.67")]
+    [InlineData("EUR", "GBP", "0.85", "85")]
     public async Task ProcessSettlementAsync_ShouldHandleMultipleCurrencies(
         string fromCurrency,
         string toCurrency,
-        decimal exchangeRate,
-        decimal expectedSettlementAmount)
+        string exchangeRateStr,
+        string expectedSettlementAmountStr)
     {
         // Arrange
+        var exchangeRate = decimal.Parse(exchangeRateStr);
+        var expectedSettlementAmount = decimal.Parse(expectedSettlementAmountStr);
         var payment = CreateTestPayment(amount: 100m, currency: fromCurrency);
 
         _exchangeRateServiceMock

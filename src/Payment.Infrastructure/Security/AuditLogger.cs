@@ -23,7 +23,7 @@ public class AuditLogger : IAuditLogger
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task LogSecurityEventAsync(
+    public Task LogSecurityEventAsync(
         SecurityEventType eventType,
         string? userId,
         string resource,
@@ -52,6 +52,8 @@ public class AuditLogger : IAuditLogger
         _logger.LogWarning(
             "Security event logging to database not fully implemented. EventType: {EventType}, Resource: {Resource}",
             eventType, resource);
+        
+        return Task.CompletedTask;
     }
 
     public async Task<IEnumerable<SecurityEvent>> QuerySecurityEventsAsync(

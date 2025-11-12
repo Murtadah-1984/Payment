@@ -1,10 +1,13 @@
 using FluentAssertions;
 using Moq;
+using Microsoft.FeatureManagement;
+using Microsoft.Extensions.Logging;
 using Payment.Application.DTOs;
 using Payment.Application.Services;
 using Payment.Domain.Entities;
 using Payment.Domain.Exceptions;
 using Payment.Domain.Interfaces;
+using Payment.Domain.Services;
 using Payment.Domain.ValueObjects;
 using Xunit;
 using PaymentEntity = Payment.Domain.Entities.Payment;
@@ -24,6 +27,11 @@ public class PaymentOrchestratorIdempotencyTests
     private readonly Mock<IPaymentFactory> _paymentFactoryMock;
     private readonly Mock<IPaymentProcessingService> _paymentProcessingServiceMock;
     private readonly Mock<IPaymentStatusUpdater> _paymentStatusUpdaterMock;
+    private readonly Mock<IPaymentStateService> _stateServiceMock;
+    private readonly Mock<IFeatureManager> _featureManagerMock;
+    private readonly Mock<ILogger<PaymentOrchestrator>> _loggerMock;
+    private readonly Mock<IMetricsRecorder> _metricsRecorderMock;
+    private readonly Mock<IRegulatoryRulesEngine> _regulatoryRulesEngineMock;
     private readonly PaymentOrchestrator _orchestrator;
 
     public PaymentOrchestratorIdempotencyTests()
@@ -38,6 +46,11 @@ public class PaymentOrchestratorIdempotencyTests
         _paymentFactoryMock = new Mock<IPaymentFactory>();
         _paymentProcessingServiceMock = new Mock<IPaymentProcessingService>();
         _paymentStatusUpdaterMock = new Mock<IPaymentStatusUpdater>();
+        _stateServiceMock = new Mock<IPaymentStateService>();
+        _featureManagerMock = new Mock<IFeatureManager>();
+        _loggerMock = new Mock<ILogger<PaymentOrchestrator>>();
+        _metricsRecorderMock = new Mock<IMetricsRecorder>();
+        _regulatoryRulesEngineMock = new Mock<IRegulatoryRulesEngine>();
 
         var paymentRepositoryMock = new Mock<IPaymentRepository>();
         var idempotentRequestRepositoryMock = new Mock<IIdempotentRequestRepository>();
@@ -63,7 +76,11 @@ public class PaymentOrchestratorIdempotencyTests
             _paymentFactoryMock.Object,
             _paymentProcessingServiceMock.Object,
             _paymentStatusUpdaterMock.Object,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger<PaymentOrchestrator>.Instance);
+            _stateServiceMock.Object,
+            _featureManagerMock.Object,
+            _loggerMock.Object,
+            _metricsRecorderMock.Object,
+            _regulatoryRulesEngineMock.Object);
     }
 
     [Fact]

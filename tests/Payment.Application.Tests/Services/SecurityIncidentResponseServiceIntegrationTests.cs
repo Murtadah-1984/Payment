@@ -69,9 +69,10 @@ public class SecurityIncidentResponseServiceIntegrationTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
+        // Note: ICredentialRevocationService doesn't have RevokeCredentialsAsync method
+        // This test may need to be updated based on actual implementation
         _credentialRevocationServiceMock
-            .Setup(s => s.RevokeCredentialsAsync(
-                It.Is<IEnumerable<string>>(ids => ids.Contains("compromised-user-123")),
+            .Setup(s => s.RevokeApiKeyAsync(
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

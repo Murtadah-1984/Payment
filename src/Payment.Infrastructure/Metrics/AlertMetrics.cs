@@ -12,7 +12,7 @@ public static class AlertMetrics
     /// <summary>
     /// Total number of alerts sent.
     /// </summary>
-    private static readonly Counter AlertsSentTotal = Metrics
+    private static readonly Counter AlertsSentTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_alerts_sent_total",
             "Total number of alerts sent",
@@ -24,7 +24,7 @@ public static class AlertMetrics
     /// <summary>
     /// Total number of alerts that were deduplicated.
     /// </summary>
-    private static readonly Counter AlertsDeduplicatedTotal = Metrics
+    private static readonly Counter AlertsDeduplicatedTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_alerts_deduplicated_total",
             "Total number of alerts that were deduplicated",
@@ -36,7 +36,7 @@ public static class AlertMetrics
     /// <summary>
     /// Total number of alert channel failures.
     /// </summary>
-    private static readonly Counter AlertChannelFailuresTotal = Metrics
+    private static readonly Counter AlertChannelFailuresTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_alert_channel_failures_total",
             "Total number of alert channel failures",
@@ -48,7 +48,7 @@ public static class AlertMetrics
     /// <summary>
     /// Duration of alert sending in seconds.
     /// </summary>
-    private static readonly Histogram AlertSendingDuration = Metrics
+    private static readonly Histogram AlertSendingDuration = Prometheus.Metrics
         .CreateHistogram(
             "payment_alert_sending_duration_seconds",
             "Duration of alert sending in seconds",

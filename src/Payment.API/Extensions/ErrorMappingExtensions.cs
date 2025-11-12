@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Payment.Domain.Common;
+using Result = Payment.Domain.Common.Result;
+using ErrorCodes = Payment.Domain.Common.ErrorCodes;
 
 namespace Payment.API.Extensions;
 
@@ -12,7 +14,7 @@ public static class ErrorMappingExtensions
     /// <summary>
     /// Maps a domain error to an appropriate HTTP status code and ActionResult.
     /// </summary>
-    public static ActionResult<T> ToActionResult<T>(this Result<T> result)
+    public static ActionResult<T> ToActionResult<T>(this Payment.Domain.Common.Result<T> result)
     {
         if (result.IsSuccess)
         {

@@ -40,7 +40,7 @@ public class ThreeDSecureService : IThreeDSecureService
 
         // Get payment to determine provider
         var payment = await _unitOfWork.Payments.GetByIdAsync(
-            new PaymentId(paymentId),
+            paymentId,
             cancellationToken);
 
         if (payment == null)
@@ -94,7 +94,7 @@ public class ThreeDSecureService : IThreeDSecureService
 
         // Get payment to determine provider
         var payment = await _unitOfWork.Payments.GetByIdAsync(
-            new PaymentId(paymentId),
+            paymentId,
             cancellationToken);
 
         if (payment == null)
@@ -150,7 +150,7 @@ public class ThreeDSecureService : IThreeDSecureService
         }
     }
 
-    public async Task<bool> IsAuthenticationRequiredAsync(
+    public Task<bool> IsAuthenticationRequiredAsync(
         Amount amount,
         Currency currency,
         CardToken cardToken,
@@ -160,7 +160,7 @@ public class ThreeDSecureService : IThreeDSecureService
         var threeDSEnabled = _configuration.GetValue<bool>("ThreeDSecure:Enabled", true);
         if (!threeDSEnabled)
         {
-            return false;
+            return Task.FromResult(false);
         }
 
         // Check amount threshold (3DS may be required for amounts above a threshold)
@@ -170,7 +170,7 @@ public class ThreeDSecureService : IThreeDSecureService
             _logger.LogDebug(
                 "3DS not required: amount {Amount} is below threshold {Threshold}",
                 amount.Value, amountThreshold);
-            return false;
+            return Task.FromResult(false);
         }
 
         // Check currency-specific rules
@@ -183,7 +183,7 @@ public class ThreeDSecureService : IThreeDSecureService
                 _logger.LogDebug(
                     "3DS not required: currency {Currency} is not in required list",
                     currency.Code);
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -197,12 +197,12 @@ public class ThreeDSecureService : IThreeDSecureService
                 _logger.LogDebug(
                     "3DS not required: card brand {CardBrand} is not in required list",
                     cardToken.CardBrand);
-                return false;
+                return Task.FromResult(false);
             }
         }
 
         // Default: 3DS is required for card payments above threshold
-        return true;
+        return Task.FromResult(true);
     }
 
     /// <summary>

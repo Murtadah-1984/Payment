@@ -156,12 +156,12 @@ public class PaymentsControllerThreeDSecureTests
             "merchant-data-123");
 
         var expectedResult = new ThreeDSecureResultDto(
-            authenticated: true,
-            cavv: "cavv-123",
-            eci: "05",
-            xid: "xid-123",
-            version: "2.2.0",
-            failureReason: null);
+            Authenticated: true,
+            Cavv: "cavv-123",
+            Eci: "05",
+            Xid: "xid-123",
+            Version: "2.2.0",
+            FailureReason: null);
 
         _mediatorMock.Setup(m => m.Send(
                 It.Is<CompleteThreeDSecureCommand>(c => 
@@ -195,12 +195,12 @@ public class PaymentsControllerThreeDSecureTests
         var md = "merchant-data-123";
 
         var expectedResult = new ThreeDSecureResultDto(
-            authenticated: true,
-            cavv: "cavv-123",
-            eci: "05",
-            xid: "xid-123",
-            version: "2.2.0",
-            failureReason: null);
+            Authenticated: true,
+            Cavv: "cavv-123",
+            Eci: "05",
+            Xid: "xid-123",
+            Version: "2.2.0",
+            FailureReason: null);
 
         _mediatorMock.Setup(m => m.Send(
                 It.Is<CompleteThreeDSecureCommand>(c => 
@@ -282,12 +282,12 @@ public class PaymentsControllerThreeDSecureTests
             "body-md");
 
         var expectedResult = new ThreeDSecureResultDto(
-            authenticated: true,
-            cavv: null,
-            eci: null,
-            xid: null,
-            version: null,
-            failureReason: null);
+            Authenticated: true,
+            Cavv: null,
+            Eci: null,
+            Xid: null,
+            Version: null,
+            FailureReason: null);
 
         _mediatorMock.Setup(m => m.Send(
                 It.Is<CompleteThreeDSecureCommand>(c => 
@@ -325,12 +325,12 @@ public class PaymentsControllerThreeDSecureTests
             "merchant-data-123");
 
         var expectedResult = new ThreeDSecureResultDto(
-            authenticated: true,
-            cavv: null,
-            eci: null,
-            xid: null,
-            version: null,
-            failureReason: null);
+            Authenticated: true,
+            Cavv: null,
+            Eci: null,
+            Xid: null,
+            Version: null,
+            FailureReason: null);
 
         _mediatorMock.Setup(m => m.Send(
                 It.IsAny<CompleteThreeDSecureCommand>(),

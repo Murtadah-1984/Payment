@@ -57,7 +57,7 @@ public class StripePaymentProviderThreeDSecureTests : IDisposable
     public void SupportsThreeDSecure_ShouldReturnTrue()
     {
         // Act
-        var supports = _provider.SupportsThreeDSecure();
+        var supports = ((IPaymentProvider)_provider).SupportsThreeDSecure();
 
         // Assert
         supports.Should().BeTrue();

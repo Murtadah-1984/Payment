@@ -111,7 +111,7 @@ public class IncidentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> ResetCircuitBreaker(
+    public Task<IActionResult> ResetCircuitBreaker(
         [FromRoute] string provider,
         CancellationToken cancellationToken)
     {
@@ -123,12 +123,12 @@ public class IncidentController : ControllerBase
             // For now, we'll just log the action
             _logger.LogWarning("Circuit breaker reset not fully implemented. Provider: {Provider}", provider);
             
-            return NoContent();
+            return Task.FromResult<IActionResult>(NoContent());
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error resetting circuit breaker for provider: {Provider}", provider);
-            return BadRequest(new { error = "Failed to reset circuit breaker", message = ex.Message });
+            return Task.FromResult<IActionResult>(BadRequest(new { error = "Failed to reset circuit breaker", message = ex.Message }));
         }
     }
 

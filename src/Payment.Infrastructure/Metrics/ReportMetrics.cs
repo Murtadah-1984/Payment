@@ -8,7 +8,7 @@ namespace Payment.Infrastructure.Metrics;
 /// </summary>
 public static class ReportMetrics
 {
-    private static readonly Counter ReportsGeneratedTotal = Metrics
+    private static readonly Counter ReportsGeneratedTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_reports_generated_total",
             "Total number of monthly reports generated",
@@ -17,7 +17,7 @@ public static class ReportMetrics
                 LabelNames = new[] { "project", "status" }
             });
 
-    private static readonly Counter ReportsFailuresTotal = Metrics
+    private static readonly Counter ReportsFailuresTotal = Prometheus.Metrics
         .CreateCounter(
             "payment_reports_failures_total",
             "Total number of report generation failures",
@@ -26,7 +26,7 @@ public static class ReportMetrics
                 LabelNames = new[] { "project", "error_type" }
             });
 
-    private static readonly Histogram ReportGenerationDuration = Metrics
+    private static readonly Histogram ReportGenerationDuration = Prometheus.Metrics
         .CreateHistogram(
             "payment_reports_last_duration_seconds",
             "Duration of report generation in seconds",
@@ -36,7 +36,7 @@ public static class ReportMetrics
                 Buckets = new[] { 1.0, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0 } // 1s to 5min
             });
 
-    private static readonly Gauge LastReportGenerationTime = Metrics
+    private static readonly Gauge LastReportGenerationTime = Prometheus.Metrics
         .CreateGauge(
             "payment_reports_last_generation_timestamp",
             "Unix timestamp of last successful report generation",

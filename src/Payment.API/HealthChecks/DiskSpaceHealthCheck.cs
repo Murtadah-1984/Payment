@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.IO;
 
 namespace Payment.API.HealthChecks;
 
@@ -26,7 +25,7 @@ public class DiskSpaceHealthCheck : IHealthCheck
     {
         try
         {
-            var drive = new DriveInfo(Path.GetPathRoot(Environment.CurrentDirectory) ?? "C:\\");
+            var drive = new DriveInfo(System.IO.Path.GetPathRoot(Environment.CurrentDirectory) ?? "C:\\");
             
             if (!drive.IsReady)
             {

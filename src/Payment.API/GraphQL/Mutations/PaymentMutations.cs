@@ -116,7 +116,7 @@ public class PaymentMutations
         var command = new FailPaymentCommand(paymentId, reason);
         var result = await mediator.Send(command, cancellationToken);
         
-        if (result.IsFailure)
+        if (!result.IsSuccess)
         {
             return null;
         }
@@ -141,7 +141,7 @@ public class PaymentMutations
         var command = new RefundPaymentCommand(paymentId, refundTransactionId);
         var result = await mediator.Send(command, cancellationToken);
         
-        if (result.IsFailure)
+        if (!result.IsSuccess)
         {
             return null;
         }

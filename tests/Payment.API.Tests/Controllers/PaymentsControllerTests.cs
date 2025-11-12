@@ -38,19 +38,24 @@ public class PaymentsControllerTests
     }
 
     [Fact]
-    public void GetAvailableProviders_ShouldReturnOk_WithProviders()
+    public async Task GetProviders_ShouldReturnOk_WithProviders()
     {
         // Arrange
-        var providers = new[] { "ZainCash", "Helcim", "Stripe" };
-        _providerFactoryMock.Setup(f => f.GetAvailableProviders())
-            .Returns(providers);
+        var providers = new List<PaymentProviderInfoDto>
+        {
+            new PaymentProviderInfoDto("ZainCash", "KW", "USD", "Wallet", true),
+            new PaymentProviderInfoDto("Helcim", "US", "USD", "Card", true),
+            new PaymentProviderInfoDto("Stripe", "US", "USD", "Card", true)
+        };
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetProvidersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(providers);
 
         // Act
-        var result = _controller.GetAvailableProviders();
+        var result = await _controller.GetProviders(null, null, null, CancellationToken.None);
 
         // Assert
-        result.Result.Should().BeOfType<OkObjectResult>();
-        var okResult = result.Result as OkObjectResult;
+        result.Should().BeOfType<OkObjectResult>();
+        var okResult = result as OkObjectResult;
         okResult!.Value.Should().BeEquivalentTo(providers);
     }
 
@@ -67,12 +72,12 @@ public class PaymentsControllerTests
             "merchant-123",
             "order-456",
             "PROJECT-001",
+            "idempotency-key-123",
             null,
             null,
             null,
             null,
-            null,
-            "idempotency-key-123");
+            null);
 
         var expectedDto = new PaymentDto(
             Guid.NewGuid(),
@@ -126,7 +131,7 @@ public class PaymentsControllerTests
             DateTime.UtcNow);
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetPaymentByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expectedDto);
+            .ReturnsAsync(Payment.Domain.Common.Result<PaymentDto>.Success(expectedDto));
 
         // Act
         var result = await _controller.GetPaymentById(id, CancellationToken.None);
@@ -143,7 +148,7 @@ public class PaymentsControllerTests
         // Arrange
         var id = Guid.NewGuid();
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetPaymentByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PaymentDto?)null);
+            .ReturnsAsync(Payment.Domain.Common.Result<PaymentDto>.Failure(Payment.Domain.Common.ErrorCodes.PaymentNotFound, "Payment not found"));
 
         // Act
         var result = await _controller.GetPaymentById(id, CancellationToken.None);

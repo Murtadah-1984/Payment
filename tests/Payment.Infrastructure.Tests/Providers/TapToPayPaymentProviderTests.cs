@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -260,7 +261,7 @@ public class TapToPayPaymentProviderTests : IDisposable
         // We can't verify the exact type since it's private, but we can verify the method wasn't called
         _cacheServiceMock.Invocations.Should().NotContain(i => 
             i.Method.Name == "GetAsync" && 
-            i.Arguments.Any(arg => arg is string str && str.Contains("tap_to_pay_token:")));
+            i.Arguments.Any(arg => arg != null && arg.GetType() == typeof(string) && ((string)arg).Contains("tap_to_pay_token:")));
     }
 
     [Fact]
@@ -408,8 +409,8 @@ public class TapToPayPaymentProviderTests : IDisposable
         request.Metadata!["destination_account_id"] = "acc_1234567890";
 
         var splitPayment = new SplitPayment(
-            Amount.FromDecimal(5.00m),
-            Amount.FromDecimal(95.00m),
+            5.00m,
+            95.00m,
             5.0m);
         request = request with { SplitPayment = splitPayment };
 

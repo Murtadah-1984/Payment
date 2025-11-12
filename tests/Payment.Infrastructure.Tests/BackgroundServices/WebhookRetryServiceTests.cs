@@ -54,7 +54,11 @@ public class WebhookRetryServiceTests
     {
         // Arrange
         var webhook = CreatePendingWebhook();
-        webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1); // Ready for retry
+        // Mark as failed to set NextRetryAt in the past
+        webhook.MarkAsFailed("Test failure", 500);
+        // Use reflection to set NextRetryAt to past time for testing
+        var nextRetryAtProperty = typeof(WebhookDelivery).GetProperty("NextRetryAt", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        nextRetryAtProperty!.SetValue(webhook, DateTime.UtcNow.AddSeconds(-1));
 
         _repositoryMock
             .Setup(r => r.GetPendingRetriesAsync(It.IsAny<CancellationToken>()))
@@ -101,7 +105,11 @@ public class WebhookRetryServiceTests
     {
         // Arrange
         var webhook = CreatePendingWebhook();
-        webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1);
+        // Mark as failed to set NextRetryAt in the past
+        webhook.MarkAsFailed("Test failure", 500);
+        // Use reflection to set NextRetryAt to past time for testing
+        var nextRetryAtProperty = typeof(WebhookDelivery).GetProperty("NextRetryAt", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        nextRetryAtProperty!.SetValue(webhook, DateTime.UtcNow.AddSeconds(-1));
 
         _repositoryMock
             .Setup(r => r.GetPendingRetriesAsync(It.IsAny<CancellationToken>()))
@@ -162,7 +170,11 @@ public class WebhookRetryServiceTests
     {
         // Arrange
         var webhook = CreatePendingWebhook();
-        webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1);
+        // Mark as failed to set NextRetryAt in the past
+        webhook.MarkAsFailed("Test failure", 500);
+        // Use reflection to set NextRetryAt to past time for testing
+        var nextRetryAtProperty = typeof(WebhookDelivery).GetProperty("NextRetryAt", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        nextRetryAtProperty!.SetValue(webhook, DateTime.UtcNow.AddSeconds(-1));
 
         _repositoryMock
             .Setup(r => r.GetPendingRetriesAsync(It.IsAny<CancellationToken>()))
@@ -202,9 +214,11 @@ public class WebhookRetryServiceTests
             CreatePendingWebhook()
         };
 
+        var nextRetryAtProperty = typeof(WebhookDelivery).GetProperty("NextRetryAt", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         foreach (var webhook in webhooks)
         {
-            webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1);
+            webhook.MarkAsFailed("Test failure", 500);
+            nextRetryAtProperty!.SetValue(webhook, DateTime.UtcNow.AddSeconds(-1));
         }
 
         _repositoryMock
@@ -251,9 +265,11 @@ public class WebhookRetryServiceTests
             .Select(_ => CreatePendingWebhook())
             .ToList();
 
+        var nextRetryAtProperty = typeof(WebhookDelivery).GetProperty("NextRetryAt", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         foreach (var webhook in webhooks)
         {
-            webhook.NextRetryAt = DateTime.UtcNow.AddSeconds(-1);
+            webhook.MarkAsFailed("Test failure", 500);
+            nextRetryAtProperty!.SetValue(webhook, DateTime.UtcNow.AddSeconds(-1));
         }
 
         _repositoryMock

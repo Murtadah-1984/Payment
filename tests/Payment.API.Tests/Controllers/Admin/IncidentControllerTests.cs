@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Payment.API.Controllers.Admin;
 using Payment.Application.DTOs;
+using Payment.Application.Interfaces;
 using Payment.Application.Services;
 using Payment.Domain.ValueObjects;
 using Xunit;
@@ -17,16 +18,19 @@ namespace Payment.API.Tests.Controllers.Admin;
 public class IncidentControllerTests
 {
     private readonly Mock<IIncidentResponseService> _incidentResponseServiceMock;
+    private readonly Mock<IIncidentReportGenerator> _reportGeneratorMock;
     private readonly Mock<ILogger<IncidentController>> _loggerMock;
     private readonly IncidentController _controller;
 
     public IncidentControllerTests()
     {
         _incidentResponseServiceMock = new Mock<IIncidentResponseService>();
+        _reportGeneratorMock = new Mock<IIncidentReportGenerator>();
         _loggerMock = new Mock<ILogger<IncidentController>>();
 
         _controller = new IncidentController(
             _incidentResponseServiceMock.Object,
+            _reportGeneratorMock.Object,
             _loggerMock.Object);
     }
 
@@ -41,10 +45,10 @@ public class IncidentControllerTests
             EndTime: DateTime.UtcNow,
             Metadata: new Dictionary<string, object> { { "error", "timeout" } });
 
-        var expectedAssessment = new IncidentAssessment(
-            Domain.Enums.IncidentSeverity.High,
-            "Payment provider returned an error response",
-            new[] { "Stripe" },
+        var expectedAssessment = IncidentAssessment.Create(
+            severity: Domain.Enums.IncidentSeverity.High,
+            rootCause: "Payment provider returned an error response",
+            affectedProviders: new[] { "Stripe" },
             affectedPaymentCount: 50,
             estimatedResolutionTime: TimeSpan.FromMinutes(15),
             recommendedActions: new[]

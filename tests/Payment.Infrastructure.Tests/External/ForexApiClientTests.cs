@@ -93,7 +93,7 @@ public class ForexApiClientTests
         // Should not make HTTP call for same currency
         _httpMessageHandlerMock.Protected().Verify(
             "SendAsync",
-            Times.Never,
+            Times.Never(),
             ItExpr.IsAny<HttpRequestMessage>(),
             ItExpr.IsAny<CancellationToken>());
     }

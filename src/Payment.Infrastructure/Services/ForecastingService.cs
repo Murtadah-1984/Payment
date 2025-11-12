@@ -51,9 +51,9 @@ public class ForecastingService : IForecastingService
 
         for (int i = 0; i < monthsToForecast; i++)
         {
-            var forecastedAmount = (decimal)average;
-            var confidenceLower = (decimal)(average - (1.96 * stdDev)); // 95% confidence interval
-            var confidenceUpper = (decimal)(average + (1.96 * stdDev));
+            var forecastedAmount = average;
+            var confidenceLower = average - (decimal)(1.96 * stdDev); // 95% confidence interval
+            var confidenceUpper = average + (decimal)(1.96 * stdDev);
 
             periods.Add(new
             {

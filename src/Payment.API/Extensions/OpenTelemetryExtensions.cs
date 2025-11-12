@@ -5,7 +5,6 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
-using OpenTelemetry.Exporter.Otlp;
 
 namespace Payment.API.Extensions;
 
@@ -148,14 +147,6 @@ public static class OpenTelemetryExtensions
                     {
                         options.AgentHost = jaegerHost;
                         options.AgentPort = jaegerPort;
-                        options.ExportProcessorType = ExportProcessorType.Batch;
-                        options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>
-                        {
-                            MaxQueueSize = 2048,
-                            ScheduledDelayMilliseconds = 5000,
-                            ExporterTimeoutMilliseconds = 30000,
-                            MaxExportBatchSize = 512
-                        };
                     });
                 }
 
@@ -168,14 +159,6 @@ public static class OpenTelemetryExtensions
                         tracerProviderBuilder.AddZipkinExporter(options =>
                         {
                             options.Endpoint = zipkinUri;
-                            options.ExportProcessorType = ExportProcessorType.Batch;
-                            options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>
-                            {
-                                MaxQueueSize = 2048,
-                                ScheduledDelayMilliseconds = 5000,
-                                ExporterTimeoutMilliseconds = 30000,
-                                MaxExportBatchSize = 512
-                            };
                         });
                     }
                     catch (UriFormatException)
@@ -194,7 +177,7 @@ public static class OpenTelemetryExtensions
                         tracerProviderBuilder.AddOtlpExporter(options =>
                         {
                             options.Endpoint = otlpUri;
-                            options.Protocol = OtlpExportProtocol.Grpc;
+                            // Protocol defaults to gRPC if not specified
                         });
                     }
                     catch (UriFormatException)
@@ -208,14 +191,8 @@ public static class OpenTelemetryExtensions
             {
                 metricsProviderBuilder
                     .SetResourceBuilder(resourceBuilder)
-                    .AddAspNetCoreInstrumentation(options =>
-                    {
-                        options.Filter = context => !context.Request.Path.StartsWithSegments("/health") &&
-                                                    !context.Request.Path.StartsWithSegments("/metrics");
-                    })
                     .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation()
-                    .AddProcessInstrumentation()
+                    // .AddProcessInstrumentation() // Not available in current OpenTelemetry version
                     .AddPrometheusExporter();
             });
 

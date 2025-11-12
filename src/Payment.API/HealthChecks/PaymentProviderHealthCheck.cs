@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Payment.Domain.Interfaces;
+using Payment.Application.Services;
 
 namespace Payment.API.HealthChecks;
 
@@ -20,7 +20,7 @@ public class PaymentProviderHealthCheck : IHealthCheck
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<HealthCheckResult> CheckHealthAsync(
+    public Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
@@ -30,7 +30,7 @@ public class PaymentProviderHealthCheck : IHealthCheck
             
             if (!providers.Any())
             {
-                return HealthCheckResult.Unhealthy("No payment providers registered");
+                return Task.FromResult(HealthCheckResult.Unhealthy("No payment providers registered"));
             }
 
             // In a real implementation, you might want to check each provider's health
@@ -41,14 +41,14 @@ public class PaymentProviderHealthCheck : IHealthCheck
                 { "Providers", string.Join(", ", providers) }
             };
 
-            return HealthCheckResult.Healthy(
+            return Task.FromResult(HealthCheckResult.Healthy(
                 $"All {providers.Count} payment providers are registered and operational",
-                data);
+                data));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking payment provider health");
-            return HealthCheckResult.Unhealthy("Error checking payment provider health", ex);
+            return Task.FromResult(HealthCheckResult.Unhealthy("Error checking payment provider health", ex));
         }
     }
 }

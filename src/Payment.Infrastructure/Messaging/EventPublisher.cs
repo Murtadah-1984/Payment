@@ -31,7 +31,7 @@ public class EventPublisher : IEventPublisher
             // Serialize event to JSON
             var json = JsonSerializer.Serialize(@event, new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonSerializerDefaults.Web.PropertyNamingPolicy
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
             // In production, this would publish to RabbitMQ/Kafka/Azure Service Bus
