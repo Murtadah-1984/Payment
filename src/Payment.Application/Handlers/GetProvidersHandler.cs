@@ -2,6 +2,7 @@ using System.Diagnostics;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Payment.Application.Common;
 using Payment.Application.DTOs;
 using Payment.Application.Queries;
 using Payment.Domain.ValueObjects;

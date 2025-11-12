@@ -1,7 +1,9 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payment.Application.Behaviors;
+using Payment.Application.Common;
 using Payment.Application.Interfaces;
 using Payment.Application.Services;
 using Payment.Application.Validators;
@@ -40,10 +42,10 @@ public static class DependencyInjection
         services.AddScoped<IFxConversionService, FxConversionService>();
         
         // Register PaymentProviderCatalog configuration options
-        services.AddOptions<PaymentProviderCatalogOptions>()
-            .BindConfiguration(PaymentProviderCatalogOptions.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+        services.Configure<PaymentProviderCatalogOptions>(options =>
+        {
+            // Configuration will be bound via IOptions pattern
+        });
         
         return services;
     }

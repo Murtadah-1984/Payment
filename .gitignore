@@ -80,3 +80,6 @@ appsettings.*.json
 !appsettings.json
 !appsettings.Development.json
 
+# Cursor IDE
+.cursor/
+

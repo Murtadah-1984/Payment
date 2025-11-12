@@ -157,7 +157,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
                                 if (lines.Length == 0) continue;
 
                                 var title = lines[0].Trim();
-                                column.Item().Text(title).SemiBold().FontSize(14).PaddingBottom(5);
+                                column.Item().PaddingBottom(5).Text(title).SemiBold().FontSize(14);
                                 
                                 for (int i = 1; i < lines.Length; i++)
                                 {

@@ -1,5 +1,6 @@
-using Amazon.GuardDuty;
-using Amazon.GuardDuty.Model;
+// using Amazon.GuardDuty;
+// using Amazon.GuardDuty.Model;
+// Note: AWSSDK.GuardDuty package not included - uncomment and add package reference if needed
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Payment.Domain.Interfaces;
@@ -14,11 +15,11 @@ namespace Payment.Infrastructure.Security.Integrations;
 /// </summary>
 public class AwsGuardDutyIntegration : SecurityMonitoringIntegrationBase
 {
-    private readonly IAmazonGuardDuty _guardDutyClient;
+    // private readonly IAmazonGuardDuty _guardDutyClient;
     private readonly AwsGuardDutyOptions _options;
 
     public AwsGuardDutyIntegration(
-        IAmazonGuardDuty guardDutyClient,
+        // IAmazonGuardDuty guardDutyClient,
         IOptions<AwsGuardDutyOptions> options,
         ILogger<AwsGuardDutyIntegration> logger)
         : base(logger)

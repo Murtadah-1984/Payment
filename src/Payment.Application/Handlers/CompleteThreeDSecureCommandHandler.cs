@@ -34,7 +34,7 @@ public sealed class CompleteThreeDSecureCommandHandler : IRequestHandler<Complet
 
         // Get payment
         var payment = await _unitOfWork.Payments.GetByIdAsync(
-            new PaymentId(request.PaymentId), 
+            request.PaymentId, 
             cancellationToken);
 
         if (payment == null)

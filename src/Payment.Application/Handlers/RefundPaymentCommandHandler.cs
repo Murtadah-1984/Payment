@@ -74,7 +74,7 @@ public sealed class RefundPaymentCommandHandler : IRequestHandler<RefundPaymentC
 
             // Record metrics for successful refund
             var refundDuration = (DateTime.UtcNow - refundStartTime).TotalSeconds;
-            var provider = payment.Provider ?? "unknown";
+            var provider = payment.Provider.ToString();
             _metricsRecorder.RecordRefund(provider, "succeeded", refundDuration);
 
             activity?.SetTag("payment.status.after", payment.Status.ToString());

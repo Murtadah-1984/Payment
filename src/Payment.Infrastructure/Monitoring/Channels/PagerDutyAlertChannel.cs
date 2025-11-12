@@ -121,7 +121,7 @@ public class PagerDutyAlertChannel : IAlertChannel
                 timestamp = DateTime.UtcNow.ToString("O"),
                 component = "Payment Microservice",
                 group = "Payment Processing",
-                class = "Payment Failure",
+                @class = "Payment Failure",
                 custom_details = customDetails
             }
         };

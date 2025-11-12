@@ -253,23 +253,29 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
             {
                 await _credentialRevocationService.RevokeApiKeyAsync(
                     request.CredentialId,
-                    request.Reason,
                     cancellationToken);
             }
             else if (string.Equals(request.CredentialType, "JwtToken", StringComparison.OrdinalIgnoreCase))
             {
                 await _credentialRevocationService.RevokeJwtTokenAsync(
                     request.CredentialId,
-                    request.Reason,
                     cancellationToken);
             }
             else
             {
-                // For other credential types, use bulk revocation
-                await _credentialRevocationService.RevokeCredentialsAsync(
-                    new[] { request.CredentialId },
-                    request.Reason,
-                    cancellationToken);
+                // For other credential types, try API key first, then JWT token
+                try
+                {
+                    await _credentialRevocationService.RevokeApiKeyAsync(
+                        request.CredentialId,
+                        cancellationToken);
+                }
+                catch
+                {
+                    await _credentialRevocationService.RevokeJwtTokenAsync(
+                        request.CredentialId,
+                        cancellationToken);
+                }
             }
 
             _logger.LogInformation("Credentials revoked successfully. CredentialId: {CredentialId}", request.CredentialId);
@@ -447,10 +453,19 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
             case ContainmentStrategy.RevokeCredentials:
                 if (!string.IsNullOrWhiteSpace(securityEvent.UserId))
                 {
-                    await _credentialRevocationService.RevokeCredentialsAsync(
-                        new[] { securityEvent.UserId },
-                        "Security incident containment",
-                        cancellationToken);
+                    // Try to revoke as API key first, then as JWT token
+                    try
+                    {
+                        await _credentialRevocationService.RevokeApiKeyAsync(
+                            securityEvent.UserId,
+                            cancellationToken);
+                    }
+                    catch
+                    {
+                        await _credentialRevocationService.RevokeJwtTokenAsync(
+                            securityEvent.UserId,
+                            cancellationToken);
+                    }
                 }
                 break;
 
