@@ -23,7 +23,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<IncidentReport> GeneratePaymentFailureReportAsync(
+    public Task<IncidentReport> GeneratePaymentFailureReportAsync(
         PaymentFailureIncident incident,
         ReportGenerationOptions? options = null,
         CancellationToken ct = default)
@@ -35,7 +35,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
             var markdown = GeneratePaymentFailureMarkdown(incident, options);
             var content = Encoding.UTF8.GetBytes(markdown);
 
-            return new IncidentReport
+            var report = new IncidentReport
             {
                 ReportId = reportId,
                 IncidentId = incident.IncidentId,
@@ -47,6 +47,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
                 Content = content,
                 Version = 1
             };
+            return Task.FromResult(report);
         }
         catch (Exception ex)
         {
@@ -55,7 +56,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
         }
     }
 
-    public async Task<IncidentReport> GenerateSecurityIncidentReportAsync(
+    public Task<IncidentReport> GenerateSecurityIncidentReportAsync(
         SecurityIncident incident,
         ReportGenerationOptions? options = null,
         CancellationToken ct = default)
@@ -67,7 +68,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
             var markdown = GenerateSecurityIncidentMarkdown(incident, options);
             var content = Encoding.UTF8.GetBytes(markdown);
 
-            return new IncidentReport
+            var report = new IncidentReport
             {
                 ReportId = reportId,
                 IncidentId = incident.IncidentId,
@@ -79,6 +80,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
                 Content = content,
                 Version = 1
             };
+            return Task.FromResult(report);
         }
         catch (Exception ex)
         {
@@ -87,14 +89,14 @@ public class IncidentReportGenerator : IIncidentReportGenerator
         }
     }
 
-    public async Task<byte[]> ExportToMarkdownAsync(
+    public Task<byte[]> ExportToMarkdownAsync(
         IncidentReport report,
         CancellationToken ct = default)
     {
-        return report.Content;
+        return Task.FromResult(report.Content);
     }
 
-    public async Task<byte[]> ExportToHtmlAsync(
+    public Task<byte[]> ExportToHtmlAsync(
         IncidentReport report,
         CancellationToken ct = default)
     {
@@ -102,7 +104,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
         {
             var markdown = Encoding.UTF8.GetString(report.Content);
             var html = ConvertMarkdownToHtml(markdown);
-            return Encoding.UTF8.GetBytes(html);
+            return Task.FromResult(Encoding.UTF8.GetBytes(html));
         }
         catch (Exception ex)
         {
@@ -111,7 +113,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
         }
     }
 
-    public async Task<byte[]> ExportToPdfAsync(
+    public Task<byte[]> ExportToPdfAsync(
         IncidentReport report,
         CancellationToken ct = default)
     {
@@ -195,7 +197,7 @@ public class IncidentReportGenerator : IIncidentReportGenerator
 
             using var stream = new MemoryStream();
             document.GeneratePdf(stream);
-            return stream.ToArray();
+            return Task.FromResult(stream.ToArray());
         }
         catch (Exception ex)
         {

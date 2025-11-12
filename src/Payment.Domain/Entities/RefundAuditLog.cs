@@ -26,7 +26,7 @@ public class RefundAuditLog : Entity
     }
 
     public Guid Id { get; private set; }
-    public PaymentId PaymentId { get; private set; }
+    public PaymentId PaymentId { get; private set; } = null!; // Initialized by constructor or EF Core
     public string Action { get; private set; } = string.Empty; // Requested, Approved, Rejected, Completed
     public string PerformedBy { get; private set; } = string.Empty; // User ID, System, etc.
     public string? Reason { get; private set; }

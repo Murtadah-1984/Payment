@@ -28,7 +28,7 @@ public class PaymentSplit : Entity
     }
 
     public Guid Id { get; private set; }
-    public PaymentId PaymentId { get; private set; }
+    public PaymentId PaymentId { get; private set; } = null!; // Initialized by constructor or EF Core
     public string AccountType { get; private set; } = string.Empty; // SystemOwner, Merchant, Partner, etc.
     public string AccountIdentifier { get; private set; } = string.Empty; // IBAN, wallet address, provider account
     public decimal Percentage { get; private set; }

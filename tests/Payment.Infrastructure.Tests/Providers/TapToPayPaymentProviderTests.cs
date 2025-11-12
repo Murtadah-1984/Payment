@@ -1,3 +1,4 @@
+
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
@@ -161,7 +162,7 @@ public class TapToPayPaymentProviderTests : IDisposable
         // Use a simpler approach: set up the mock to return the cached token for any key containing "tap_to_pay_token:"
         var setupCacheForReplayMethod = typeof(TapToPayPaymentProviderTests)
             .GetMethod(nameof(SetupCacheServiceMockForReplay), BindingFlags.NonPublic | BindingFlags.Instance)!;
-        var genericSetupReplayMethod = setupCacheForReplayMethod.MakeGenericMethod(_tokenMarkerType);
+        var genericSetupReplayMethod = setupCacheForReplayMethod.MakeGenericMethod(_tokenMarkerType!);
         genericSetupReplayMethod.Invoke(this, new object[] { _cacheServiceMock, cachedToken });
 
         // Act

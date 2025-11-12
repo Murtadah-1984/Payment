@@ -41,11 +41,11 @@ public class Payment : Entity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public PaymentId Id { get; private set; }
-    public Amount Amount { get; private set; }
-    public Currency Currency { get; private set; }
-    public PaymentMethod PaymentMethod { get; private set; }
-    public PaymentProvider Provider { get; private set; }
+    public PaymentId Id { get; private set; } = null!; // Initialized by constructor or EF Core
+    public Amount Amount { get; private set; } = null!; // Initialized by constructor or EF Core
+    public Currency Currency { get; private set; } = null!; // Initialized by constructor or EF Core
+    public PaymentMethod PaymentMethod { get; private set; } = null!; // Initialized by constructor or EF Core
+    public PaymentProvider Provider { get; private set; } = null!; // Initialized by constructor or EF Core
     public string MerchantId { get; private set; } = string.Empty;
     public string OrderId { get; private set; } = string.Empty;
     public SplitPayment? SplitPayment { get; private set; }

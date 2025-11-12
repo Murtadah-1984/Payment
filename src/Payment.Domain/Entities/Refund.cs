@@ -35,9 +35,9 @@ public class Refund : Entity
     }
 
     public Guid Id { get; private set; }
-    public PaymentId PaymentId { get; private set; }
-    public Amount Amount { get; private set; }
-    public Currency Currency { get; private set; }
+    public PaymentId PaymentId { get; private set; } = null!; // Initialized by constructor or EF Core
+    public Amount Amount { get; private set; } = null!; // Initialized by constructor or EF Core
+    public Currency Currency { get; private set; } = null!; // Initialized by constructor or EF Core
     public string Reason { get; private set; } = string.Empty;
     public PaymentStatus Status { get; private set; }
     public string? RefundTransactionId { get; private set; }
