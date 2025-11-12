@@ -49,6 +49,36 @@ public class PaymentsController : ControllerBase
     }
 
     /// <summary>
+    /// Gets payment providers by country code (ISO 3166-1 alpha-2).
+    /// Returns a list of available payment providers for the specified country.
+    /// </summary>
+    /// <param name="countryCode">ISO 3166-1 alpha-2 country code (e.g., "IQ", "KW", "AE")</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of payment providers available for the country</returns>
+    [HttpGet("providers/{countryCode}")]
+    [ProducesResponseType(typeof(IEnumerable<PaymentProviderInfoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<PaymentProviderInfoDto>>> GetPaymentProvidersByCountry(
+        string countryCode,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(countryCode) || countryCode.Length != 2)
+        {
+            _logger.LogWarning("Invalid country code provided: {CountryCode}", countryCode);
+            return BadRequest(new { error = "Country code must be a valid ISO 3166-1 alpha-2 code (2 characters)" });
+        }
+
+        var query = new GetPaymentProvidersByCountryQuery(countryCode.ToUpperInvariant());
+        var result = await _mediator.Send(query, cancellationToken);
+        
+        _logger.LogInformation("Retrieved {Count} payment providers for country {CountryCode}", 
+            result.Count, countryCode);
+        
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Creates a new payment
     /// </summary>
     [HttpPost]

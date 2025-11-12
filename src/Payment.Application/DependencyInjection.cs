@@ -37,6 +37,12 @@ public static class DependencyInjection
         services.AddScoped<ISecurityIncidentResponseService, SecurityIncidentResponseService>();
         services.AddScoped<Domain.Interfaces.IIncidentReportGenerator, IncidentReportGenerator>();
         
+        // Register PaymentProviderCatalog configuration options
+        services.AddOptions<PaymentProviderCatalogOptions>()
+            .BindConfiguration(PaymentProviderCatalogOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         return services;
     }
 }

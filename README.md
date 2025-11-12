@@ -74,6 +74,7 @@ For AI context routing and semantic search, see [docs/05-Index.yaml](docs/05-Ind
 - ✅ **Automated Monthly Reporting** - Financial reports with Prometheus metrics
 - ✅ **GraphQL Support** - Flexible client queries and mutations via HotChocolate
 - ✅ **Incident Response Service** - Automated payment failure assessment, stakeholder notifications, and automatic refund processing
+- ✅ **Country-Based Payment Provider Discovery** - Query available payment providers by country code (IQ, KW, AE, etc.)
 
 ## 🏗️ Architecture Overview
 
@@ -117,6 +118,148 @@ For AI context routing and semantic search, see [docs/05-Index.yaml](docs/05-Ind
 - **Infrastructure** implements **Domain interfaces**
 
 For detailed architecture documentation, see [System Architecture](docs/01-Architecture/System_Architecture.md).
+
+## 🌍 Country-Based Payment Provider Discovery
+
+The Payment Microservice supports **country-based payment provider discovery**, allowing clients to query available payment providers for specific countries. This feature enables regional payment provider selection based on ISO 3166-1 alpha-2 country codes.
+
+### Usage Examples
+
+#### Get Providers for Iraq (IQ)
+```bash
+curl -X GET "https://localhost:5001/api/v1/payments/providers/IQ" \
+  -H "accept: application/json"
+```
+
+**Response:**
+```json
+[
+  {
+    "providerName": "ZainCash",
+    "countryCode": "IQ",
+    "currency": "IQD",
+    "paymentMethod": "Wallet",
+    "isActive": true
+  },
+  {
+    "providerName": "FIB",
+    "countryCode": "IQ",
+    "currency": "IQD",
+    "paymentMethod": "Card",
+    "isActive": true
+  },
+  {
+    "providerName": "Telr",
+    "countryCode": "IQ",
+    "currency": "IQD",
+    "paymentMethod": "Card",
+    "isActive": true
+  }
+]
+```
+
+#### Get Providers for Kuwait (KW)
+```bash
+curl -X GET "https://localhost:5001/api/v1/payments/providers/KW" \
+  -H "accept: application/json"
+```
+
+#### Get Providers for UAE (AE)
+```bash
+curl -X GET "https://localhost:5001/api/v1/payments/providers/AE" \
+  -H "accept: application/json"
+```
+
+### Regional Extension Guidelines
+
+To add support for new countries or extend existing country support:
+
+#### 1. Update Static Catalog (Default)
+
+Edit `src/Payment.Domain/ValueObjects/PaymentProviderCatalog.cs` and add entries to the `DefaultCatalog`:
+
+```csharp
+["US"] = new List<PaymentProviderInfo>
+{
+    new("Stripe", "US", "USD", "Card", true),
+    new("Square", "US", "USD", "Card", true)
+}
+```
+
+#### 2. Configure via appsettings.json (Recommended)
+
+Add entries to the `PaymentProviderCatalog` section in `appsettings.json`:
+
+```json
+{
+  "PaymentProviderCatalog": {
+    "Providers": [
+      {
+        "ProviderName": "Stripe",
+        "CountryCode": "US",
+        "Currency": "USD",
+        "PaymentMethod": "Card",
+        "IsActive": true
+      },
+      {
+        "ProviderName": "Square",
+        "CountryCode": "US",
+        "Currency": "USD",
+        "PaymentMethod": "Card",
+        "IsActive": true
+      }
+    ]
+  }
+}
+```
+
+#### 3. External Provider Registry (Future)
+
+The catalog supports initialization from external sources. Implement a service that loads providers from:
+- Database
+- External API
+- Configuration service
+- Feature flags
+
+Example:
+```csharp
+var providers = await _externalRegistryService.GetProvidersAsync();
+PaymentProviderCatalog.Initialize(providers);
+```
+
+### Supported Countries
+
+Currently supported countries with payment providers:
+
+- **IQ (Iraq)**: ZainCash, FIB, Telr, Paytabs, Tap
+- **KW (Kuwait)**: Telr, Paytabs, Tap, AmazonPaymentServices, Checkout, Stripe
+- **AE (UAE)**: Telr, Paytabs, Tap, AmazonPaymentServices, Checkout, Stripe, Verifone
+- **SA (Saudi Arabia)**: Paytabs, Tap, AmazonPaymentServices, Checkout, Stripe
+- **BH (Bahrain)**: Telr, Paytabs, Tap, AmazonPaymentServices, Stripe
+- **OM (Oman)**: Telr, Paytabs, Tap, AmazonPaymentServices, Stripe
+- **QA (Qatar)**: Telr, Paytabs, Tap, AmazonPaymentServices, Checkout, Stripe
+
+### API Endpoint
+
+**GET** `/api/v1/payments/providers/{countryCode}`
+
+- **Authentication**: Not required (AllowAnonymous)
+- **Parameters**:
+  - `countryCode` (path, required): ISO 3166-1 alpha-2 country code (2 characters)
+- **Response**: Array of `PaymentProviderInfoDto` objects
+- **Status Codes**:
+  - `200 OK`: Successfully retrieved providers (may be empty array)
+  - `400 Bad Request`: Invalid country code format
+
+### Architecture
+
+The feature follows **Clean Architecture** principles:
+
+- **Domain Layer**: `PaymentProviderInfo` (value object) and `PaymentProviderCatalog` (static catalog)
+- **Application Layer**: `GetPaymentProvidersByCountryQuery` (CQRS query) and handler
+- **Presentation Layer**: `PaymentsController` endpoint
+
+Configuration is loaded from `appsettings.json` or can be initialized programmatically, supporting both static and dynamic provider management.
 
 ## 🧪 Testing
 
