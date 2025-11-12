@@ -22,5 +22,6 @@ public sealed record CreatePaymentDto(
     string? CustomerPhone = null,        // For wallet-based providers
     string? NfcToken = null,             // Tokenized NFC payload from mobile SDK (Apple Pay, Google Pay, Tap SDK)
     string? DeviceId = null,              // Device or terminal ID for Tap-to-Pay transactions
-    string? CustomerId = null             // Customer identifier for Tap-to-Pay transactions
+    string? CustomerId = null,             // Customer identifier for Tap-to-Pay transactions
+    string? CountryCode = null            // ISO 3166-1 alpha-2 country code (e.g., "KW", "SA", "IQ") for regulatory compliance
 );

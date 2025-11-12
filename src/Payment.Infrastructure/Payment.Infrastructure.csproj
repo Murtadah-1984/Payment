@@ -34,5 +34,11 @@
     <PackageReference Include="prometheus-net" Version="8.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Config\ComplianceRules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
 

@@ -3,7 +3,10 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Payment.Domain.Entities;
 using Payment.Domain.Interfaces;
+using Payment.Domain.Services;
 using Payment.Infrastructure.Caching;
 using Payment.Infrastructure.Data;
 using Payment.Infrastructure.Monitoring;
@@ -12,6 +15,7 @@ using Payment.Infrastructure.Providers;
 using Payment.Infrastructure.Repositories;
 using Payment.Infrastructure.Secrets;
 using Payment.Infrastructure.Security;
+using System.Text.Json;
 
 namespace Payment.Infrastructure;
 
@@ -234,6 +238,9 @@ public static class DependencyInjection
         services.AddScoped<IPaymentStateMachineFactory, StateMachines.PaymentStateMachineFactory>();
         services.AddScoped<Domain.Services.IPaymentStateService, Services.PaymentStateService>();
 
+        // Register regulatory compliance rules engine (Regulatory Compliance)
+        RegisterComplianceRules(services, configuration);
+
         // Register background services
         services.AddHostedService<BackgroundServices.IdempotencyCleanupService>();
         services.AddHostedService<BackgroundServices.OutboxProcessorService>(); // Outbox Pattern #12
@@ -370,6 +377,75 @@ public static class DependencyInjection
             return new Security.Integrations.SecurityMonitoringService(
                 registeredIntegrations,
                 serviceProvider.GetRequiredService<ILogger<Security.Integrations.SecurityMonitoringService>>());
+        });
+    }
+
+    /// <summary>
+    /// Registers regulatory compliance rules engine and loads compliance rules from JSON configuration.
+    /// </summary>
+    private static void RegisterComplianceRules(IServiceCollection services, IConfiguration configuration)
+    {
+        // Load compliance rules from JSON file
+        var configPath = Path.Combine(AppContext.BaseDirectory, "Config", "ComplianceRules.json");
+        
+        // Fallback to embedded resource or configuration section if file doesn't exist
+        List<ComplianceRule> complianceRules = new();
+        
+        if (File.Exists(configPath))
+        {
+            try
+            {
+                var jsonContent = File.ReadAllText(configPath);
+                var rules = JsonSerializer.Deserialize<List<ComplianceRule>>(jsonContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                
+                if (rules != null && rules.Any())
+                {
+                    complianceRules = rules;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail - use empty rules list as fallback
+                // Create a temporary logger factory for early initialization logging
+                using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+                var logger = loggerFactory.CreateLogger(typeof(DependencyInjection));
+                logger.LogWarning(ex, "Error loading compliance rules from {ConfigPath}. Falling back to configuration section.", configPath);
+            }
+        }
+        
+        // Also try to load from configuration section (for appsettings.json or environment variables)
+        var configSection = configuration.GetSection("ComplianceRules");
+        if (configSection.Exists() && configSection.GetChildren().Any())
+        {
+            var configRules = configSection.Get<List<ComplianceRule>>();
+            if (configRules != null && configRules.Any())
+            {
+                // Merge with file-based rules (config takes precedence)
+                foreach (var rule in configRules)
+                {
+                    var existing = complianceRules.FirstOrDefault(r => 
+                        r.CountryCode.Equals(rule.CountryCode, StringComparison.OrdinalIgnoreCase));
+                    if (existing != null)
+                    {
+                        complianceRules.Remove(existing);
+                    }
+                    complianceRules.Add(rule);
+                }
+            }
+        }
+
+        // Register compliance rules as singleton (immutable configuration)
+        services.AddSingleton(complianceRules);
+
+        // Register regulatory rules engine as singleton (stateless service)
+        services.AddSingleton<IRegulatoryRulesEngine>(serviceProvider =>
+        {
+            var rules = serviceProvider.GetRequiredService<List<ComplianceRule>>();
+            var logger = serviceProvider.GetRequiredService<ILogger<RegulatoryRulesEngine>>();
+            return new RegulatoryRulesEngine(rules, logger);
         });
     }
 }

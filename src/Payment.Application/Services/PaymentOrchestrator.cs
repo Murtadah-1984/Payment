@@ -32,6 +32,7 @@ public class PaymentOrchestrator : IPaymentOrchestrator
     private readonly IFeatureManager _featureManager;
     private readonly ILogger<PaymentOrchestrator> _logger;
     private readonly IMetricsRecorder _metricsRecorder;
+    private readonly IRegulatoryRulesEngine _regulatoryRulesEngine;
 
     public PaymentOrchestrator(
         IUnitOfWork unitOfWork,
@@ -46,7 +47,8 @@ public class PaymentOrchestrator : IPaymentOrchestrator
         IPaymentStateService stateService,
         IFeatureManager featureManager,
         ILogger<PaymentOrchestrator> logger,
-        IMetricsRecorder metricsRecorder)
+        IMetricsRecorder metricsRecorder,
+        IRegulatoryRulesEngine regulatoryRulesEngine)
     {
         _unitOfWork = unitOfWork;
         _providerFactory = providerFactory;
@@ -61,6 +63,7 @@ public class PaymentOrchestrator : IPaymentOrchestrator
         _featureManager = featureManager;
         _logger = logger;
         _metricsRecorder = metricsRecorder;
+        _regulatoryRulesEngine = regulatoryRulesEngine;
     }
 
     public async Task<PaymentDto> ProcessPaymentAsync(CreatePaymentDto request, CancellationToken cancellationToken)
@@ -167,25 +170,44 @@ public class PaymentOrchestrator : IPaymentOrchestrator
         // Step 4: Create payment entity (delegated to IPaymentFactory)
         var payment = _paymentFactory.CreatePayment(request, splitPayment, metadata);
 
-        // Step 5: Persist payment
+        // Step 5: Validate regulatory compliance (if country code provided)
+        if (!string.IsNullOrWhiteSpace(request.CountryCode))
+        {
+            var isValid = _regulatoryRulesEngine.ValidateTransaction(request.CountryCode, payment);
+            if (!isValid)
+            {
+                var rule = _regulatoryRulesEngine.GetRule(request.CountryCode);
+                var regulationName = rule?.RegulationName ?? "Unknown";
+                _logger.LogWarning(
+                    "Payment {PaymentId} rejected due to regulatory compliance violation (Country: {CountryCode}, Regulation: {RegulationName})",
+                    payment.Id.Value, request.CountryCode, regulationName);
+                
+                throw new ComplianceException(
+                    $"Transaction violates {request.CountryCode} regulations ({regulationName}).",
+                    request.CountryCode,
+                    regulationName);
+            }
+        }
+
+        // Step 6: Persist payment
         await _unitOfWork.Payments.AddAsync(payment, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Step 6: Get payment provider (delegated to IPaymentProviderFactory) - Feature Flags #17
+        // Step 7: Get payment provider (delegated to IPaymentProviderFactory) - Feature Flags #17
         var provider = await _providerFactory.CreateAsync(request.Provider, cancellationToken);
 
-        // Step 7: Process payment through provider (delegated to IPaymentProcessingService)
+        // Step 8: Process payment through provider (delegated to IPaymentProcessingService)
         var processingStartTime = DateTime.UtcNow;
         try
         {
             var result = await _paymentProcessingService.ProcessPaymentAsync(payment, provider, cancellationToken);
 
-            // Step 8: Update payment status (delegated to IPaymentStatusUpdater)
+            // Step 9: Update payment status (delegated to IPaymentStatusUpdater)
             _paymentStatusUpdater.UpdatePaymentStatus(payment, result);
 
             await _unitOfWork.Payments.UpdateAsync(payment, cancellationToken);
             
-            // Step 9: Store idempotency record
+            // Step 10: Store idempotency record
             var requestHash = _requestHashService.ComputeRequestHash(request);
             var idempotentRequest = new IdempotentRequest(
                 idempotencyKey: request.IdempotencyKey,

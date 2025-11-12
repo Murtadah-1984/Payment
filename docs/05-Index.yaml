@@ -70,6 +70,10 @@ index:
       title: "Provider Discovery API"
       tags: ["payment", "api", "endpoints", "providers", "discovery", "filtering"]
       priority: "high"
+    - path: "docs/02-Payment/Regulatory_Compliance.md"
+      title: "Regulatory Compliance"
+      tags: ["payment", "compliance", "regulatory", "3d-secure", "cbk", "sama", "cbi", "pci-dss"]
+      priority: "high"
   
   infrastructure:
     - path: "docs/03-Infrastructure/Kubernetes_Deployment.md"
@@ -120,6 +124,7 @@ semantic_tags:
     - "docs/02-Payment/Security_Incident_Response_Service.md"
     - "docs/02-Payment/Credential_Revocation_Service.md"
     - "docs/02-Payment/Audit_Log_Querying.md"
+    - "docs/02-Payment/Regulatory_Compliance.md"
     - "docs/01-Architecture/Authentication_Flow.md"
   
   deployment:

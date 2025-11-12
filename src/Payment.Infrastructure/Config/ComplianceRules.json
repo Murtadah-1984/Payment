@@ -1,0 +1,43 @@
+[
+  {
+    "CountryCode": "KW",
+    "RegulationName": "CBK",
+    "Description": "Central Bank of Kuwait requirements",
+    "Requires3DSecure": true,
+    "RequiresEncryption": true,
+    "RequiresSettlementReport": true
+  },
+  {
+    "CountryCode": "SA",
+    "RegulationName": "SAMA",
+    "Description": "Saudi Arabian Monetary Authority requirements",
+    "Requires3DSecure": true,
+    "RequiresEncryption": true,
+    "RequiresSettlementReport": true
+  },
+  {
+    "CountryCode": "IQ",
+    "RegulationName": "CBI",
+    "Description": "Central Bank of Iraq requirements",
+    "Requires3DSecure": false,
+    "RequiresEncryption": true,
+    "RequiresSettlementReport": false
+  },
+  {
+    "CountryCode": "AE",
+    "RegulationName": "CBUAE",
+    "Description": "Central Bank of the UAE requirements",
+    "Requires3DSecure": true,
+    "RequiresEncryption": true,
+    "RequiresSettlementReport": true
+  },
+  {
+    "CountryCode": "US",
+    "RegulationName": "PCI DSS",
+    "Description": "Payment Card Industry Data Security Standard",
+    "Requires3DSecure": false,
+    "RequiresEncryption": true,
+    "RequiresSettlementReport": false
+  }
+]
+
