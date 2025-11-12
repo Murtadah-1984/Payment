@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Environment Configuration**: Comprehensive environment-specific configuration support
+  - Three distinct environments: Development, Staging, and Production
+  - Environment-specific `appsettings.{Environment}.json` files
+  - Automatic configuration loading based on `ASPNETCORE_ENVIRONMENT` variable
+  - Launch profiles for all environments in `launchSettings.json`
+  - Environment-aware Swagger/GraphQL tools (enabled in Dev/Staging, disabled in Production)
+  - Environment-specific rate limits, logging levels, and feature flags
+  - Kubernetes ConfigMap and Secret examples for environment variables
+  - Comprehensive documentation with troubleshooting guide
+  - See [Environment Configuration](docs/03-Infrastructure/Environment_Configuration.md) for details
 - **Provider Discovery API**: Global endpoint for discovering available payment providers
   - Single endpoint (`GET /api/v1/payments/providers`) for provider discovery
   - Flexible filtering by country, currency, and payment method (or any combination)

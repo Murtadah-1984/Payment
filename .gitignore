@@ -79,6 +79,8 @@ docker-compose.override.yml
 appsettings.*.json
 !appsettings.json
 !appsettings.Development.json
+!appsettings.Staging.json
+!appsettings.Production.json
 
 # Cursor IDE
 .cursor/

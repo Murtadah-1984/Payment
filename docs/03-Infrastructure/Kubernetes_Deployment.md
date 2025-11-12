@@ -13,6 +13,7 @@ summary: >
   Complete Kubernetes deployment guide including Docker setup, K8s manifests,
   environment variables, and production considerations.
 related_docs:
+  - Environment_Configuration.md
   - Observability.md
   - Performance_Optimization.md
   - ../00-Overview/README.md
@@ -46,19 +47,27 @@ kubectl apply -f k8s/
 
 ## Environment Variables
 
-Configure the following environment variables:
+The application supports three environments: **Development**, **Staging**, and **Production**. Each environment has its own configuration file that automatically loads based on the `ASPNETCORE_ENVIRONMENT` variable.
+
+**Required environment variables for Staging/Production:**
 
 ```bash
+# Set environment
+ASPNETCORE_ENVIRONMENT=Production
+
 # Database
-ConnectionStrings__DefaultConnection="Host=postgres;Database=PaymentDb;Username=postgres;Password=password"
+POSTGRES_HOST=postgres-service
+POSTGRES_PORT=5432
+POSTGRES_DB=PaymentDb
+POSTGRES_USER=payment_user
+POSTGRES_PASSWORD=<secure-password>
 
 # JWT
-Auth__Authority="https://identity.yourdomain.com"
-Auth__Audience="payment-service"
-
-# Logging
-Serilog__MinimumLevel="Information"
+AUTH_AUTHORITY=https://identity.yourdomain.com
+AUTH_AUDIENCE=payment-service
 ```
+
+> 📖 **See [Environment Configuration](Environment_Configuration.md) for detailed environment setup guide.**
 
 ## Production Considerations
 
@@ -75,6 +84,7 @@ Serilog__MinimumLevel="Information"
 
 ## See Also
 
+- [Environment Configuration](Environment_Configuration.md)
 - [Observability & Monitoring](Observability.md)
 - [Performance & Optimization](Performance_Optimization.md)
 - [Overview](../00-Overview/README.md)

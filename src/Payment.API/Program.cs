@@ -301,7 +301,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -341,7 +341,7 @@ app.MapControllers();
 
 // GraphQL endpoint (GraphQL Support #19)
 var graphQLOptions = new GraphQLServerOptions();
-if (builder.Environment.IsDevelopment())
+if (builder.Environment.IsDevelopment() || builder.Environment.IsStaging())
 {
     graphQLOptions.Tool.Enable = true;
 }

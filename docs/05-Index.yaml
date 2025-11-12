@@ -80,6 +80,10 @@ index:
       title: "Kubernetes Deployment"
       tags: ["kubernetes", "deployment", "docker", "k8s"]
       priority: "high"
+    - path: "docs/03-Infrastructure/Environment_Configuration.md"
+      title: "Environment Configuration"
+      tags: ["environment", "configuration", "development", "staging", "production", "appsettings"]
+      priority: "high"
     - path: "docs/03-Infrastructure/Observability.md"
       title: "Observability & Monitoring"
       tags: ["observability", "opentelemetry", "jaeger", "zipkin", "prometheus", "health-checks"]
@@ -129,6 +133,7 @@ semantic_tags:
   
   deployment:
     - "docs/03-Infrastructure/Kubernetes_Deployment.md"
+    - "docs/03-Infrastructure/Environment_Configuration.md"
     - "docs/00-Overview/README.md"
   
   observability:
