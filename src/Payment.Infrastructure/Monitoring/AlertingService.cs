@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Payment.Application.DTOs;
 using Payment.Domain.Enums;
-using Payment.Domain.Interfaces;
+using Payment.Application.Interfaces;
 using Payment.Domain.ValueObjects;
 using Payment.Infrastructure.Metrics;
 using Payment.Infrastructure.Monitoring.Channels;

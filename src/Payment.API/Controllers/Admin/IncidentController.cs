@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payment.Application.DTOs;
 using Payment.Application.Services;
-using Payment.Domain.Interfaces;
+using Payment.Application.Interfaces;
 using Payment.Domain.ValueObjects;
 
 namespace Payment.API.Controllers.Admin;

@@ -2,7 +2,7 @@ using Payment.Application.DTOs;
 using Payment.Domain.Enums;
 using Payment.Domain.ValueObjects;
 
-namespace Payment.Domain.Interfaces;
+namespace Payment.Application.Interfaces;
 
 /// <summary>
 /// Service interface for sending automated alerts.

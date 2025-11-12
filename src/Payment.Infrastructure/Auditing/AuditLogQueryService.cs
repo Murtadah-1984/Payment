@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Payment.Application.DTOs;
 using Payment.Domain.Entities;
-using Payment.Domain.Interfaces;
+using Payment.Application.Interfaces;
 using Payment.Infrastructure.Data;
 using System.Text;
 using System.Text.Json;

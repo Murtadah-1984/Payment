@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Payment.Application.Behaviors;
+using Payment.Application.Interfaces;
 using Payment.Application.Services;
 using Payment.Application.Validators;
 using Payment.Domain.Interfaces;
@@ -35,7 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IIncidentResponseService, IncidentResponseService>();
         services.AddScoped<IRefundService, RefundService>();
         services.AddScoped<ISecurityIncidentResponseService, SecurityIncidentResponseService>();
-        services.AddScoped<Domain.Interfaces.IIncidentReportGenerator, IncidentReportGenerator>();
+        services.AddScoped<IIncidentReportGenerator, IncidentReportGenerator>();
         services.AddScoped<IFxConversionService, FxConversionService>();
         
         // Register PaymentProviderCatalog configuration options

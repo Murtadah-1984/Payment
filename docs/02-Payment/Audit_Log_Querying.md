@@ -56,9 +56,9 @@ The Audit Log Querying System is designed to provide:
 
 ### Components
 
-1. **IAuditLogQueryService** (`Payment.Domain.Interfaces.IAuditLogQueryService`)
+1. **IAuditLogQueryService** (`Payment.Application.Interfaces.IAuditLogQueryService`)
    - Main interface for audit log querying operations
-   - Located in Domain layer following Clean Architecture
+   - Located in Application layer following Clean Architecture
 
 2. **AuditLogQueryService** (`Payment.Infrastructure.Auditing.AuditLogQueryService`)
    - Core implementation of audit log querying logic

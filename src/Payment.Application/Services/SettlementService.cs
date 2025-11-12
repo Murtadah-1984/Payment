@@ -28,7 +28,7 @@ public class SettlementService : ISettlementService
     }
 
     public async Task<bool> ProcessSettlementAsync(
-        Payment payment,
+        Domain.Entities.Payment payment,
         string settlementCurrency,
         CancellationToken cancellationToken = default)
     {

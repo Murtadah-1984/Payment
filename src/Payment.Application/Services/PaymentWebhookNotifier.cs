@@ -29,7 +29,7 @@ public class PaymentWebhookNotifier : IPaymentWebhookNotifier
     }
 
     public async Task NotifyPaymentStatusChangeAsync(
-        Payment payment,
+        Domain.Entities.Payment payment,
         string eventType,
         CancellationToken cancellationToken = default)
     {
@@ -77,7 +77,7 @@ public class PaymentWebhookNotifier : IPaymentWebhookNotifier
         }
     }
 
-    private string? GetWebhookUrl(Payment payment)
+    private string? GetWebhookUrl(Domain.Entities.Payment payment)
     {
         // Priority 1: Check payment metadata for webhook URL
         if (payment.Metadata.TryGetValue("webhook_url", out var webhookUrl) ||
@@ -108,7 +108,7 @@ public class PaymentWebhookNotifier : IPaymentWebhookNotifier
         return null;
     }
 
-    private string CreateWebhookPayload(Payment payment, string eventType)
+    private string CreateWebhookPayload(Domain.Entities.Payment payment, string eventType)
     {
         var payload = new
         {
@@ -148,7 +148,7 @@ public interface IPaymentWebhookNotifier
     /// Schedules a webhook notification for a payment status change.
     /// </summary>
     Task NotifyPaymentStatusChangeAsync(
-        Payment payment,
+        Domain.Entities.Payment payment,
         string eventType,
         CancellationToken cancellationToken = default);
 }

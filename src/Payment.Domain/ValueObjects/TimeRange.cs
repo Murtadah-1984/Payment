@@ -4,9 +4,12 @@ namespace Payment.Domain.ValueObjects;
 /// Represents a time range for querying incident metrics.
 /// Immutable value object following DDD principles.
 /// </summary>
-public sealed record TimeRange(DateTime Start, DateTime End)
+public sealed record TimeRange
 {
-    public TimeRange(DateTime start, DateTime end) : this()
+    public DateTime Start { get; init; }
+    public DateTime End { get; init; }
+
+    public TimeRange(DateTime start, DateTime end)
     {
         if (start >= end)
         {

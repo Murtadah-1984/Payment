@@ -46,7 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IIdempotentRequestRepository, IdempotentRequestRepository>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>(); // Audit Logging #7
-        services.AddScoped<Domain.Interfaces.IAuditLogQueryService, Auditing.AuditLogQueryService>(); // Audit Log Querying
+        services.AddScoped<Application.Interfaces.IAuditLogQueryService, Auditing.AuditLogQueryService>(); // Audit Log Querying
         services.AddScoped<IOutboxMessageRepository, Repositories.OutboxMessageRepository>(); // Outbox Pattern #12
         services.AddScoped<IWebhookDeliveryRepository, Repositories.WebhookDeliveryRepository>(); // Webhook Retry Mechanism #20
         services.AddScoped<IPaymentReportRepository, PaymentReportRepository>();
@@ -331,7 +331,7 @@ public static class DependencyInjection
         services.AddSingleton<IAlertChannel, SmsAlertChannel>();
 
         // Register alerting service
-        services.AddScoped<Domain.Interfaces.IAlertingService, Monitoring.AlertingService>();
+        services.AddScoped<Application.Interfaces.IAlertingService, Monitoring.AlertingService>();
 
         // Register Kubernetes secret rotation service (optional - requires K8s client)
         // services.AddScoped<Security.IKubernetesSecretRotationService, Security.KubernetesSecretRotationService>();

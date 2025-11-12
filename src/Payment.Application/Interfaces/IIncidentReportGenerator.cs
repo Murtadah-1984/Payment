@@ -1,6 +1,6 @@
 using Payment.Application.DTOs;
 
-namespace Payment.Domain.Interfaces;
+namespace Payment.Application.Interfaces;
 
 /// <summary>
 /// Interface for generating incident reports in various formats.

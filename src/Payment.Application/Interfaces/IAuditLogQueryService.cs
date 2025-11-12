@@ -1,6 +1,6 @@
 using Payment.Application.DTOs;
 
-namespace Payment.Domain.Interfaces;
+namespace Payment.Application.Interfaces;
 
 /// <summary>
 /// Interface for querying audit logs with advanced filtering and pagination.

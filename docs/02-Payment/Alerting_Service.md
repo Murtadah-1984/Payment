@@ -56,9 +56,9 @@ The Alerting Service is designed to ensure timely notification of critical incid
 
 ### Components
 
-1. **IAlertingService** (`Payment.Domain.Interfaces.IAlertingService`)
+1. **IAlertingService** (`Payment.Application.Interfaces.IAlertingService`)
    - Main interface for alerting operations
-   - Located in Domain layer following Clean Architecture
+   - Located in Application layer following Clean Architecture
 
 2. **AlertingService** (`Payment.Infrastructure.Monitoring.AlertingService`)
    - Core implementation of alerting logic

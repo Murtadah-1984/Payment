@@ -59,9 +59,9 @@ The Incident Report Generation System provides:
 
 ### Components
 
-1. **IIncidentReportGenerator** (`Payment.Domain.Interfaces.IIncidentReportGenerator`)
+1. **IIncidentReportGenerator** (`Payment.Application.Interfaces.IIncidentReportGenerator`)
    - Main interface for incident report generation
-   - Located in Domain layer following Clean Architecture
+   - Located in Application layer following Clean Architecture
 
 2. **IncidentReportGenerator** (`Payment.Application.Services.IncidentReportGenerator`)
    - Core implementation of report generation logic
