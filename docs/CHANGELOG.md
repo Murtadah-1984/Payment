@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Provider Discovery API**: Global endpoint for discovering available payment providers
+  - Single endpoint (`GET /api/v1/payments/providers`) for provider discovery
+  - Flexible filtering by country, currency, and payment method (or any combination)
+  - Case-insensitive filter matching
+  - Public access (AllowAnonymous) for client applications
+  - Clean Architecture implementation with CQRS pattern (MediatR)
+  - OpenTelemetry tracing support
+  - Configuration-based provider loading from appsettings.json
+  - Comprehensive test coverage (29 test cases across 3 test files)
+  - Stateless design suitable for Kubernetes horizontal scaling
+  - See [Provider Discovery API](docs/02-Payment/Provider_Discovery_API.md) for details
 - **Audit Log Querying Tools**: Comprehensive audit log querying and management system
   - Advanced filtering by UserId, IpAddress, EventType, Resource, TimeRange
   - Full-text search across action, entity type, and user ID fields

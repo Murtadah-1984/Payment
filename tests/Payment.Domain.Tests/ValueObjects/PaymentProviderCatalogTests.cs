@@ -236,5 +236,101 @@ public class PaymentProviderCatalogTests
         iqProviders.Should().NotBeEmpty();
         usProviders.Should().BeEmpty(); // Custom provider should be gone
     }
+
+    [Fact]
+    public void GetAll_ShouldReturnAllActiveProviders_FromAllCountries()
+    {
+        // Act
+        var allProviders = PaymentProviderCatalog.GetAll();
+
+        // Assert
+        allProviders.Should().NotBeNull();
+        allProviders.Should().NotBeEmpty();
+        allProviders.Should().OnlyContain(p => p.IsActive);
+        // Should contain providers from multiple countries
+        allProviders.Should().Contain(p => p.CountryCode == "IQ");
+        allProviders.Should().Contain(p => p.CountryCode == "KW");
+        allProviders.Should().Contain(p => p.CountryCode == "AE");
+        allProviders.Should().Contain(p => p.CountryCode == "SA");
+    }
+
+    [Fact]
+    public void GetAll_ShouldReturnFlattenedList_FromAllCountries()
+    {
+        // Act
+        var allProviders = PaymentProviderCatalog.GetAll();
+
+        // Assert
+        allProviders.Should().NotBeNull();
+        allProviders.Should().NotBeEmpty();
+        
+        // Verify we have providers from multiple countries in a single list
+        var iqCount = allProviders.Count(p => p.CountryCode == "IQ");
+        var kwCount = allProviders.Count(p => p.CountryCode == "KW");
+        var aeCount = allProviders.Count(p => p.CountryCode == "AE");
+        
+        iqCount.Should().BeGreaterThan(0);
+        kwCount.Should().BeGreaterThan(0);
+        aeCount.Should().BeGreaterThan(0);
+        
+        // Total count should be sum of all countries
+        var totalExpected = iqCount + kwCount + aeCount;
+        allProviders.Count.Should().BeGreaterThanOrEqualTo(totalExpected);
+    }
+
+    [Fact]
+    public void GetAll_ShouldExcludeInactiveProviders()
+    {
+        // Arrange
+        var customProviders = new List<PaymentProviderInfo>
+        {
+            new("ActiveProvider", "US", "USD", "Card", true),
+            new("InactiveProvider", "US", "USD", "Card", false)
+        };
+        PaymentProviderCatalog.Initialize(customProviders);
+
+        // Act
+        var allProviders = PaymentProviderCatalog.GetAll();
+
+        // Assert
+        allProviders.Should().NotBeNull();
+        allProviders.Should().Contain(p => p.ProviderName == "ActiveProvider");
+        allProviders.Should().NotContain(p => p.ProviderName == "InactiveProvider");
+        allProviders.Should().OnlyContain(p => p.IsActive);
+    }
+
+    [Fact]
+    public void GetAll_ShouldReturnProviders_AfterInitialization()
+    {
+        // Arrange
+        var customProviders = new List<PaymentProviderInfo>
+        {
+            new("CustomProvider1", "US", "USD", "Card", true),
+            new("CustomProvider2", "CA", "CAD", "Card", true)
+        };
+        PaymentProviderCatalog.Initialize(customProviders);
+
+        // Act
+        var allProviders = PaymentProviderCatalog.GetAll();
+
+        // Assert
+        allProviders.Should().NotBeNull();
+        allProviders.Should().Contain(p => p.ProviderName == "CustomProvider1" && p.CountryCode == "US");
+        allProviders.Should().Contain(p => p.ProviderName == "CustomProvider2" && p.CountryCode == "CA");
+    }
+
+    [Fact]
+    public void GetAll_ShouldReturnConsistentResults_OnMultipleCalls()
+    {
+        // Act
+        var firstCall = PaymentProviderCatalog.GetAll();
+        var secondCall = PaymentProviderCatalog.GetAll();
+
+        // Assert
+        firstCall.Should().NotBeNull();
+        secondCall.Should().NotBeNull();
+        firstCall.Count.Should().Be(secondCall.Count);
+        firstCall.Should().BeEquivalentTo(secondCall);
+    }
 }
 

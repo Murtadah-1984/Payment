@@ -197,5 +197,17 @@ public static class PaymentProviderCatalog
     {
         return Catalog.Keys.ToList();
     }
+
+    /// <summary>
+    /// Gets all active providers from all countries.
+    /// Returns a flattened list of all active payment providers across all countries.
+    /// </summary>
+    public static IReadOnlyList<PaymentProviderInfo> GetAll()
+    {
+        return Catalog.Values
+            .SelectMany(providers => providers)
+            .Where(p => p.IsActive)
+            .ToList();
+    }
 }
 

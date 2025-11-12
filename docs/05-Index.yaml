@@ -66,6 +66,10 @@ index:
       title: "Incident Report Templates"
       tags: ["incident-reporting", "templates", "pdf-generation", "compliance", "documentation"]
       priority: "high"
+    - path: "docs/02-Payment/Provider_Discovery_API.md"
+      title: "Provider Discovery API"
+      tags: ["payment", "api", "endpoints", "providers", "discovery", "filtering"]
+      priority: "high"
   
   infrastructure:
     - path: "docs/03-Infrastructure/Kubernetes_Deployment.md"
@@ -107,6 +111,7 @@ index:
 semantic_tags:
   payment_processing:
     - "docs/02-Payment/Payment_Microservice.md"
+    - "docs/02-Payment/Provider_Discovery_API.md"
     - "docs/02-Payment/GraphQL_Support.md"
     - "docs/01-Architecture/System_Architecture.md"
   

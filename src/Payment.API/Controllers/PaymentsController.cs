@@ -37,14 +37,25 @@ public class PaymentsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets available payment providers
+    /// Provider Discovery API - Gets available payment providers with optional filtering.
+    /// Supports filtering by country, currency, or payment method.
     /// </summary>
+    /// <param name="country">ISO 3166-1 alpha-2 country code (e.g., "AE", "IQ", "KW")</param>
+    /// <param name="currency">Currency code (e.g., "USD", "AED", "IQD")</param>
+    /// <param name="method">Payment method (e.g., "Card", "Wallet")</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of payment providers matching the filters</returns>
     [HttpGet("providers")]
-    [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<PaymentProviderInfoDto>), StatusCodes.Status200OK)]
     [AllowAnonymous]
-    public ActionResult<IEnumerable<string>> GetAvailableProviders()
+    public async Task<IActionResult> GetProviders(
+        [FromQuery] string? country,
+        [FromQuery] string? currency,
+        [FromQuery] string? method,
+        CancellationToken cancellationToken)
     {
-        var providers = _providerFactory.GetAvailableProviders();
+        var query = new GetProvidersQuery(country, currency, method);
+        var providers = await _mediator.Send(query, cancellationToken);
         return Ok(providers);
     }
 

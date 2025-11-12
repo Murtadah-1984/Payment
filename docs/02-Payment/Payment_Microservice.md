@@ -28,11 +28,13 @@ Once running, access:
 
 For GraphQL API documentation, see [GraphQL Support](GraphQL_Support.md).
 
+For Provider Discovery API documentation, see [Provider Discovery API](Provider_Discovery_API.md).
+
 ## Available Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `GET` | `/api/v1/payments/providers` | Get list of available payment providers | No |
+| `GET` | `/api/v1/payments/providers` | Provider Discovery API - Get providers with optional filtering (country, currency, method) | No |
 | `POST` | `/api/v1/payments` | Create a new payment | Yes |
 | `GET` | `/api/v1/payments/{id}` | Get payment by ID | Yes |
 | `GET` | `/api/v1/payments/order/{orderId}` | Get payment by order ID | Yes |
