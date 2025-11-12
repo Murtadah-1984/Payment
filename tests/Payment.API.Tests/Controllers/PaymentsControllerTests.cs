@@ -170,12 +170,12 @@ public class PaymentsControllerTests
             "merchant-123",
             "order-456",
             "PROJECT-001",
+            "idempotency-key-123",
             null,
             null,
             null,
             null,
-            null,
-            "idempotency-key-123");
+            null);
 
         var fraudResult = FraudCheckResult.HighRisk(
             0.95m,
