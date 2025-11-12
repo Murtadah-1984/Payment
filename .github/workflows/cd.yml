@@ -247,21 +247,30 @@ jobs:
           sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ needs.build-and-push.outputs.image-name }}:${{ needs.determine-environment.outputs.version }}|g" k8s/payment-deployment.yaml
           
           # Apply Kubernetes manifests (order matters for dependencies)
-          # Use --validate=false if cluster is not configured
-          VALIDATE_FLAG=""
           if [ "$VALIDATE" = "false" ]; then
-            VALIDATE_FLAG="--validate=false"
-            echo "Applying manifests without validation (cluster not configured)"
+            echo "Cluster not configured - validating manifests with dry-run instead of applying"
+            echo "To actually deploy, configure kubectl to connect to your cluster in the 'Configure kubectl' step"
+            # Validate manifests without requiring cluster connection
+            kubectl apply --dry-run=client -f k8s/namespace.yaml
+            kubectl apply --dry-run=client -f k8s/serviceaccounts.yaml
+            kubectl apply --dry-run=client -f k8s/rbac.yaml
+            kubectl apply --dry-run=client -f k8s/configmap.yaml
+            kubectl apply --dry-run=client -f k8s/secret.yaml
+            kubectl apply --dry-run=client -f k8s/payment-deployment.yaml
+            kubectl apply --dry-run=client -f k8s/hpa.yaml
+            kubectl apply --dry-run=client -f k8s/networkpolicies.yaml
+            echo "Manifests validated successfully (dry-run mode)"
+          else
+            echo "Applying manifests to cluster"
+            kubectl apply -f k8s/namespace.yaml
+            kubectl apply -f k8s/serviceaccounts.yaml
+            kubectl apply -f k8s/rbac.yaml
+            kubectl apply -f k8s/configmap.yaml
+            kubectl apply -f k8s/secret.yaml
+            kubectl apply -f k8s/payment-deployment.yaml
+            kubectl apply -f k8s/hpa.yaml
+            kubectl apply -f k8s/networkpolicies.yaml
           fi
-          
-          kubectl apply $VALIDATE_FLAG -f k8s/namespace.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/serviceaccounts.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/rbac.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/configmap.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/secret.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/payment-deployment.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/hpa.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/networkpolicies.yaml
           
           # Wait for rollout (only if cluster is configured)
           if [ "$VALIDATE" = "true" ]; then
@@ -330,21 +339,30 @@ jobs:
           sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ needs.build-and-push.outputs.image-name }}:${{ needs.determine-environment.outputs.version }}|g" k8s/payment-deployment.yaml
           
           # Apply Kubernetes manifests (order matters for dependencies)
-          # Use --validate=false if cluster is not configured
-          VALIDATE_FLAG=""
           if [ "$VALIDATE" = "false" ]; then
-            VALIDATE_FLAG="--validate=false"
-            echo "Applying manifests without validation (cluster not configured)"
+            echo "Cluster not configured - validating manifests with dry-run instead of applying"
+            echo "To actually deploy, configure kubectl to connect to your cluster in the 'Configure kubectl' step"
+            # Validate manifests without requiring cluster connection
+            kubectl apply --dry-run=client -f k8s/namespace.yaml
+            kubectl apply --dry-run=client -f k8s/serviceaccounts.yaml
+            kubectl apply --dry-run=client -f k8s/rbac.yaml
+            kubectl apply --dry-run=client -f k8s/configmap.yaml
+            kubectl apply --dry-run=client -f k8s/secret.yaml
+            kubectl apply --dry-run=client -f k8s/payment-deployment.yaml
+            kubectl apply --dry-run=client -f k8s/hpa.yaml
+            kubectl apply --dry-run=client -f k8s/networkpolicies.yaml
+            echo "Manifests validated successfully (dry-run mode)"
+          else
+            echo "Applying manifests to cluster"
+            kubectl apply -f k8s/namespace.yaml
+            kubectl apply -f k8s/serviceaccounts.yaml
+            kubectl apply -f k8s/rbac.yaml
+            kubectl apply -f k8s/configmap.yaml
+            kubectl apply -f k8s/secret.yaml
+            kubectl apply -f k8s/payment-deployment.yaml
+            kubectl apply -f k8s/hpa.yaml
+            kubectl apply -f k8s/networkpolicies.yaml
           fi
-          
-          kubectl apply $VALIDATE_FLAG -f k8s/namespace.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/serviceaccounts.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/rbac.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/configmap.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/secret.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/payment-deployment.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/hpa.yaml
-          kubectl apply $VALIDATE_FLAG -f k8s/networkpolicies.yaml
           
           # Wait for rollout (only if cluster is configured)
           if [ "$VALIDATE" = "true" ]; then
