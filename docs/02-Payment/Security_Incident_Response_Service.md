@@ -47,6 +47,10 @@ The Security Incident Response Service is designed to handle security incidents 
 - ✅ **Incident Reporting** - Generates detailed JSON reports with event timeline and remediation actions
 - ✅ **Audit Log Integration** - Queries security events from audit logs for analysis
 - ✅ **Stateless Design** - Suitable for Kubernetes horizontal scaling
+  - **Database Persistence** - All security incidents are persisted to PostgreSQL database
+  - **Repository Pattern** - Uses `ISecurityIncidentRepository` for data access
+  - **No In-Memory State** - Removed static dictionaries, all state stored in database
+  - **Distributed Cache** - Circuit breaker states use Redis for shared state across pods
 - ✅ **Comprehensive Logging** - Structured logging for observability and audit trails
 - ✅ **Admin API Endpoints** - Secure REST endpoints for security incident management
 - ✅ **IP Whitelisting** - Production-ready IP whitelisting for admin endpoints
@@ -64,6 +68,8 @@ The Security Incident Response Service is designed to handle security incidents 
 2. **SecurityIncidentResponseService** (`Payment.Application.Services.SecurityIncidentResponseService`)
    - Core implementation of security incident response logic
    - Orchestrates assessment, containment, and reporting
+   - Uses `ISecurityIncidentRepository` for stateless incident tracking
+   - Persists all incidents to database (no in-memory state)
 
 3. **IAuditLogger** (`Payment.Domain.Interfaces.IAuditLogger`)
    - Interface for logging and querying security events
@@ -94,15 +100,30 @@ The Security Incident Response Service is designed to handle security incidents 
    - REST API controller for security incident management
    - Requires `SecurityAdminOnly` authorization policy
 
-10. **IncidentController** (`Payment.API.Controllers.Admin.IncidentController`)
+10. **ISecurityIncidentRepository** (`Payment.Domain.Interfaces.ISecurityIncidentRepository`)
+    - Repository interface for security incident data access
+    - Extends `IRepository<SecurityIncident>` for CRUD operations
+    - Provides `GetByIncidentIdAsync` for incident lookup
+
+11. **SecurityIncidentRepository** (`Payment.Infrastructure.Repositories.SecurityIncidentRepository`)
+    - Repository implementation for security incident persistence
+    - Uses Entity Framework Core with PostgreSQL
+    - Stateless design - all state persisted to database
+
+12. **SecurityIncident** (`Payment.Domain.Entities.SecurityIncident`)
+    - Domain entity representing a security incident
+    - Persisted to `SecurityIncidents` table in database
+    - Contains security event data, assessment, and containment status
+
+13. **IncidentController** (`Payment.API.Controllers.Admin.IncidentController`)
     - REST API controller for payment failure incident management
     - Requires `AdminOnly` authorization policy
 
-11. **AdminRequestLoggingMiddleware** (`Payment.API.Middleware.AdminRequestLoggingMiddleware`)
+14. **AdminRequestLoggingMiddleware** (`Payment.API.Middleware.AdminRequestLoggingMiddleware`)
     - Logs all requests and responses to admin endpoints
     - Provides complete audit trail for administrative actions
 
-12. **IpWhitelistMiddleware** (`Payment.API.Middleware.IpWhitelistMiddleware`)
+15. **IpWhitelistMiddleware** (`Payment.API.Middleware.IpWhitelistMiddleware`)
     - Enforces IP whitelisting on admin endpoints in production
     - Supports exact IP matches and CIDR notation
 

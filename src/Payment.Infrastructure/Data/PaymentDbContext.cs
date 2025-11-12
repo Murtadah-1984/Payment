@@ -33,6 +33,7 @@ public class PaymentDbContext : DbContext
     public DbSet<OutboxMessage> OutboxMessages { get; set; } = null!;
     public DbSet<WebhookDelivery> WebhookDeliveries { get; set; } = null!;
     public DbSet<RevokedCredential> RevokedCredentials { get; set; } = null!;
+    public DbSet<SecurityIncident> SecurityIncidents { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +53,7 @@ public class PaymentDbContext : DbContext
         modelBuilder.ApplyConfiguration(new Configurations.OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new Configurations.WebhookDeliveryConfiguration());
         modelBuilder.ApplyConfiguration(new Configurations.RevokedCredentialConfiguration());
+        modelBuilder.ApplyConfiguration(new Configurations.SecurityIncidentConfiguration());
         base.OnModelCreating(modelBuilder);
     }
 }

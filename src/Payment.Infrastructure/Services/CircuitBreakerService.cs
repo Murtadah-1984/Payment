@@ -7,36 +7,58 @@ namespace Payment.Infrastructure.Services;
 /// Service for checking circuit breaker status of payment providers.
 /// Integrates with metrics recorder to get circuit breaker state.
 /// Follows Single Responsibility Principle - only handles circuit breaker status.
-/// Stateless by design - suitable for Kubernetes deployment.
+/// Stateless by design - uses distributed cache for Kubernetes deployment.
 /// </summary>
 public class CircuitBreakerService : ICircuitBreakerService
 {
     private readonly IMetricsRecorder _metricsRecorder;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<CircuitBreakerService> _logger;
-    private readonly Dictionary<string, string> _circuitBreakerStates = new();
+    private const string CacheKeyPrefix = "circuitbreaker:";
 
     public CircuitBreakerService(
         IMetricsRecorder metricsRecorder,
+        ICacheService cacheService,
         ILogger<CircuitBreakerService> logger)
     {
         _metricsRecorder = metricsRecorder ?? throw new ArgumentNullException(nameof(metricsRecorder));
+        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public Task<string> GetCircuitBreakerStateAsync(string providerName, CancellationToken cancellationToken = default)
+    public async Task<string> GetCircuitBreakerStateAsync(string providerName, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(providerName))
             throw new ArgumentException("Provider name cannot be null or empty", nameof(providerName));
 
-        // In production, this would query the actual circuit breaker state from metrics or state store
-        // For now, we'll use a simple in-memory cache (in production, use Redis or similar)
-        _circuitBreakerStates.TryGetValue(providerName, out var state);
+        // Query circuit breaker state from distributed cache (stateless - suitable for Kubernetes)
+        var cacheKey = $"{CacheKeyPrefix}{providerName}";
+        var cached = await _cacheService.GetAsync<CircuitBreakerState>(cacheKey, cancellationToken);
         
-        var result = state ?? "closed"; // Default to closed if not found
+        var result = cached?.State ?? "closed"; // Default to closed if not found
         
         _logger.LogDebug("Circuit breaker state for {Provider}: {State}", providerName, result);
         
-        return Task.FromResult(result);
+        return result;
+    }
+
+    public async Task SetCircuitBreakerStateAsync(string providerName, string state, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(providerName))
+            throw new ArgumentException("Provider name cannot be null or empty", nameof(providerName));
+        if (string.IsNullOrWhiteSpace(state))
+            throw new ArgumentException("State cannot be null or empty", nameof(state));
+
+        // Store circuit breaker state in distributed cache (stateless - suitable for Kubernetes)
+        var cacheKey = $"{CacheKeyPrefix}{providerName}";
+        await _cacheService.SetAsync(cacheKey, new CircuitBreakerState { State = state }, TimeSpan.FromMinutes(10), cancellationToken);
+        
+        _logger.LogDebug("Circuit breaker state updated for {Provider}: {State}", providerName, state);
+    }
+
+    private class CircuitBreakerState
+    {
+        public string State { get; set; } = string.Empty;
     }
 
     public async Task<bool> IsCircuitBreakerOpenAsync(string providerName, CancellationToken cancellationToken = default)

@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Stateless Architecture Enforcement**: Complete statelessness audit and fixes
+  - **SecurityIncidentResponseService**: Replaced static in-memory dictionary with database persistence
+    - Created `SecurityIncident` entity and `ISecurityIncidentRepository` for stateless incident tracking
+    - All security incidents now persisted to PostgreSQL `SecurityIncidents` table
+    - Removed static `Dictionary<SecurityIncidentId, SecurityIncidentTracking>` violation
+  - **CircuitBreakerService**: Replaced instance-level dictionary with distributed cache
+    - Circuit breaker states now stored in Redis (distributed cache)
+    - Removed in-memory `Dictionary<string, string>` violation
+    - Added `SetCircuitBreakerStateAsync` method for state updates
+  - **MemoryCacheService**: Verified as development fallback only
+    - Only used when Redis is unavailable (development/testing)
+    - Production deployments must use Redis for distributed caching
+  - **Static Collections Review**: Verified all static collections are immutable configuration
+    - `PaymentProviderCatalog` - Frozen dictionary (readonly configuration)
+    - `SecurityEventTypes` - Immutable HashSet
+    - `ValidCurrencyCodes` - Immutable HashSet
+    - `SupportedCurrencies` - Immutable HashSet
+  - **Clean Architecture Compliance**: Fixed Domain layer dependencies
+    - Removed Application DTO dependencies from Domain entity
+    - `SecurityIncident` entity no longer references `SecurityIncidentAssessment` or `RemediationAction`
+    - Conversion logic moved to Application layer service
+  - **Database Schema**: Added `SecurityIncidents` table with EF Core configuration
+    - Comprehensive indexes for query performance
+    - JSON storage for complex data (affected resources, remediation actions)
+  - **Testing**: Added comprehensive test coverage
+    - `SecurityIncidentRepositoryTests` - Repository CRUD operations
+    - `SecurityIncidentTests` - Domain entity validation and behavior
+    - Updated existing service tests to include repository mocks
+  - See [Security Incident Response Service](docs/02-Payment/Security_Incident_Response_Service.md) for details
+
 ### Added
 - **Environment Configuration**: Comprehensive environment-specific configuration support
   - Three distinct environments: Development, Staging, and Production

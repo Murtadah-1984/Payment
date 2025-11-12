@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Payment.Application.DTOs;
+using Payment.Domain.Entities;
 using Payment.Domain.Enums;
 using Payment.Domain.Interfaces;
 using Payment.Domain.ValueObjects;
@@ -17,20 +18,23 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
     private readonly IAuditLogger _auditLogger;
     private readonly ICredentialRevocationService _credentialRevocationService;
     private readonly ISecurityNotificationService _securityNotificationService;
+    private readonly ISecurityIncidentRepository _securityIncidentRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<SecurityIncidentResponseService> _logger;
-    
-    // In-memory storage for incident tracking (in production, use a repository)
-    private static readonly Dictionary<SecurityIncidentId, SecurityIncidentTracking> _incidentTracking = new();
 
     public SecurityIncidentResponseService(
         IAuditLogger auditLogger,
         ICredentialRevocationService credentialRevocationService,
         ISecurityNotificationService securityNotificationService,
+        ISecurityIncidentRepository securityIncidentRepository,
+        IUnitOfWork unitOfWork,
         ILogger<SecurityIncidentResponseService> logger)
     {
         _auditLogger = auditLogger ?? throw new ArgumentNullException(nameof(auditLogger));
         _credentialRevocationService = credentialRevocationService ?? throw new ArgumentNullException(nameof(credentialRevocationService));
         _securityNotificationService = securityNotificationService ?? throw new ArgumentNullException(nameof(securityNotificationService));
+        _securityIncidentRepository = securityIncidentRepository ?? throw new ArgumentNullException(nameof(securityIncidentRepository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -79,15 +83,23 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
             recommendedContainment: recommendedContainment,
             remediationActions: remediationActions);
 
-        // Track the incident
+        // Track the incident in database (stateless - suitable for Kubernetes)
         var incidentId = SecurityIncidentId.NewId();
-        _incidentTracking[incidentId] = new SecurityIncidentTracking
-        {
-            IncidentId = incidentId,
-            SecurityEvent = securityEvent,
-            Assessment = assessment,
-            CreatedAt = DateTime.UtcNow
-        };
+        var remediationActionsJson = JsonSerializer.Serialize(remediationActions);
+        var securityIncident = new Domain.Entities.SecurityIncident(
+            id: Guid.NewGuid(),
+            incidentId: incidentId,
+            securityEvent: securityEvent,
+            severity: severity,
+            threatType: threatType,
+            affectedResources: affectedResources,
+            compromisedCredentials: compromisedCredentials,
+            recommendedContainment: recommendedContainment,
+            remediationActionsJson: remediationActionsJson,
+            createdAt: DateTime.UtcNow);
+
+        await _securityIncidentRepository.AddAsync(securityIncident, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
             "Security incident assessment completed. IncidentId: {IncidentId}, Severity: {Severity}, ThreatType: {ThreatType}, RecommendedContainment: {Containment}",
@@ -126,7 +138,8 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
             "Containing security incident. IncidentId: {IncidentId}, Strategy: {Strategy}",
             incidentId.Value, strategy);
 
-        if (!_incidentTracking.TryGetValue(incidentId, out var tracking))
+        var securityIncident = await _securityIncidentRepository.GetByIncidentIdAsync(incidentId, cancellationToken);
+        if (securityIncident == null)
         {
             _logger.LogWarning("Security incident not found: {IncidentId}", incidentId.Value);
             throw new InvalidOperationException($"Security incident {incidentId.Value} not found");
@@ -135,11 +148,13 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
         try
         {
             // Execute containment strategy
-            await ExecuteContainmentStrategyAsync(tracking.SecurityEvent, strategy, cancellationToken);
+            var securityEvent = securityIncident.ToSecurityEvent();
+            await ExecuteContainmentStrategyAsync(securityEvent, strategy, cancellationToken);
 
-            // Update tracking
-            tracking.ContainedAt = DateTime.UtcNow;
-            tracking.ContainmentStrategy = strategy;
+            // Update incident in database
+            securityIncident.MarkAsContained(strategy, DateTime.UtcNow);
+            await _securityIncidentRepository.UpdateAsync(securityIncident, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
                 "Security incident contained successfully. IncidentId: {IncidentId}, Strategy: {Strategy}",
@@ -161,45 +176,60 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
 
         _logger.LogInformation("Generating incident report. IncidentId: {IncidentId}", incidentId.Value);
 
-        if (!_incidentTracking.TryGetValue(incidentId, out var tracking))
+        var securityIncident = await _securityIncidentRepository.GetByIncidentIdAsync(incidentId, cancellationToken);
+        if (securityIncident == null)
         {
             _logger.LogWarning("Security incident not found: {IncidentId}", incidentId.Value);
             throw new InvalidOperationException($"Security incident {incidentId.Value} not found");
         }
 
+        var securityEvent = securityIncident.ToSecurityEvent();
+        
+        // Reconstruct assessment from entity data (Domain layer doesn't know about Application DTOs)
+        var affectedResourcesList = JsonSerializer.Deserialize<IEnumerable<string>>(securityIncident.AffectedResources) ?? Enumerable.Empty<string>();
+        var compromisedCredentialsList = JsonSerializer.Deserialize<IEnumerable<string>>(securityIncident.CompromisedCredentials) ?? Enumerable.Empty<string>();
+        var remediationActionsList = JsonSerializer.Deserialize<IEnumerable<RemediationAction>>(securityIncident.RemediationActions) ?? Enumerable.Empty<RemediationAction>();
+        var assessment = SecurityIncidentAssessment.Create(
+            securityIncident.Severity,
+            securityIncident.ThreatType,
+            affectedResourcesList,
+            compromisedCredentialsList,
+            securityIncident.RecommendedContainment,
+            remediationActionsList);
+
         // Query related events for the report
         var relatedEvents = await _auditLogger.QuerySecurityEventsAsync(
-            userId: tracking.SecurityEvent.UserId,
-            eventType: tracking.SecurityEvent.EventType,
-            startDate: tracking.SecurityEvent.Timestamp.AddHours(-24),
-            endDate: tracking.SecurityEvent.Timestamp.AddHours(1),
+            userId: securityEvent.UserId,
+            eventType: securityEvent.EventType,
+            startDate: securityEvent.Timestamp.AddHours(-24),
+            endDate: securityEvent.Timestamp.AddHours(1),
             cancellationToken: cancellationToken);
 
         var report = new
         {
             IncidentId = incidentId.Value,
-            CreatedAt = tracking.CreatedAt,
-            ContainedAt = tracking.ContainedAt,
-            ContainmentStrategy = tracking.ContainmentStrategy?.ToString(),
+            CreatedAt = securityIncident.CreatedAt,
+            ContainedAt = securityIncident.ContainedAt,
+            ContainmentStrategy = securityIncident.ContainmentStrategy?.ToString(),
             SecurityEvent = new
             {
-                EventType = tracking.SecurityEvent.EventType.ToString(),
-                Timestamp = tracking.SecurityEvent.Timestamp,
-                UserId = tracking.SecurityEvent.UserId,
-                IpAddress = tracking.SecurityEvent.IpAddress,
-                Resource = tracking.SecurityEvent.Resource,
-                Action = tracking.SecurityEvent.Action,
-                Succeeded = tracking.SecurityEvent.Succeeded,
-                Details = tracking.SecurityEvent.Details
+                EventType = securityEvent.EventType.ToString(),
+                Timestamp = securityEvent.Timestamp,
+                UserId = securityEvent.UserId,
+                IpAddress = securityEvent.IpAddress,
+                Resource = securityEvent.Resource,
+                Action = securityEvent.Action,
+                Succeeded = securityEvent.Succeeded,
+                Details = securityEvent.Details
             },
             Assessment = new
             {
-                Severity = tracking.Assessment.Severity.ToString(),
-                ThreatType = tracking.Assessment.ThreatType.ToString(),
-                AffectedResources = tracking.Assessment.AffectedResources,
-                CompromisedCredentials = tracking.Assessment.CompromisedCredentials,
-                RecommendedContainment = tracking.Assessment.RecommendedContainment.ToString(),
-                RemediationActions = tracking.Assessment.RemediationActions.Select(ra => new
+                Severity = assessment.Severity.ToString(),
+                ThreatType = assessment.ThreatType.ToString(),
+                AffectedResources = assessment.AffectedResources,
+                CompromisedCredentials = assessment.CompromisedCredentials,
+                RecommendedContainment = assessment.RecommendedContainment.ToString(),
+                RemediationActions = assessment.RemediationActions.Select(ra => new
                 {
                     ra.Action,
                     ra.Description,
@@ -220,8 +250,8 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
             Summary = new
             {
                 TotalRelatedEvents = relatedEvents.Count(),
-                TimeToContain = tracking.ContainedAt.HasValue
-                    ? tracking.ContainedAt.Value - tracking.CreatedAt
+                TimeToContain = securityIncident.ContainedAt.HasValue
+                    ? securityIncident.ContainedAt.Value - securityIncident.CreatedAt
                     : (TimeSpan?)null
             }
         };
@@ -496,16 +526,6 @@ public class SecurityIncidentResponseService : ISecurityIncidentResponseService
                 _logger.LogWarning("Network isolation not implemented. Network should be isolated");
                 break;
         }
-    }
-
-    private class SecurityIncidentTracking
-    {
-        public SecurityIncidentId IncidentId { get; set; } = null!;
-        public SecurityEvent SecurityEvent { get; set; } = null!;
-        public SecurityIncidentAssessment Assessment { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
-        public DateTime? ContainedAt { get; set; }
-        public ContainmentStrategy? ContainmentStrategy { get; set; }
     }
 }
 

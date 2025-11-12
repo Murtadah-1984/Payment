@@ -50,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<IOutboxMessageRepository, Repositories.OutboxMessageRepository>(); // Outbox Pattern #12
         services.AddScoped<IWebhookDeliveryRepository, Repositories.WebhookDeliveryRepository>(); // Webhook Retry Mechanism #20
         services.AddScoped<IPaymentReportRepository, PaymentReportRepository>();
+        services.AddScoped<Domain.Interfaces.ISecurityIncidentRepository, Repositories.SecurityIncidentRepository>(); // Security Incident Repository
         services.AddSingleton<IMetricsRecorder, Metrics.MetricsRecorder>(); // Metrics recording
         
         // Register reporting services

@@ -20,6 +20,8 @@ public class SecurityIncidentResponseServiceIntegrationTests
     private readonly Mock<IAuditLogger> _auditLoggerMock;
     private readonly Mock<ICredentialRevocationService> _credentialRevocationServiceMock;
     private readonly Mock<ISecurityNotificationService> _securityNotificationServiceMock;
+    private readonly Mock<ISecurityIncidentRepository> _securityIncidentRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<SecurityIncidentResponseService>> _loggerMock;
     private readonly SecurityIncidentResponseService _service;
 
@@ -28,12 +30,16 @@ public class SecurityIncidentResponseServiceIntegrationTests
         _auditLoggerMock = new Mock<IAuditLogger>();
         _credentialRevocationServiceMock = new Mock<ICredentialRevocationService>();
         _securityNotificationServiceMock = new Mock<ISecurityNotificationService>();
+        _securityIncidentRepositoryMock = new Mock<ISecurityIncidentRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
         _loggerMock = new Mock<ILogger<SecurityIncidentResponseService>>();
 
         _service = new SecurityIncidentResponseService(
             _auditLoggerMock.Object,
             _credentialRevocationServiceMock.Object,
             _securityNotificationServiceMock.Object,
+            _securityIncidentRepositoryMock.Object,
+            _unitOfWorkMock.Object,
             _loggerMock.Object);
     }
 
