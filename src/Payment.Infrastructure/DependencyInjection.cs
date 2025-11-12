@@ -124,6 +124,15 @@ public static class DependencyInjection
         });
         services.AddScoped<Domain.Interfaces.IWebhookDeliveryService, Services.WebhookDeliveryService>();
 
+        // Register Forex API client for FX conversion (FX Conversion)
+        services.AddHttpClient<Domain.Interfaces.IForexApiClient, External.ForexApiClient>(client =>
+        {
+            var baseUrl = configuration["Forex:BaseUrl"] ?? "https://api.exchangerate.host";
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+        });
+
         // Register HTTP clients for payment providers
         services.AddHttpClient<ZainCashPaymentProvider>(client =>
         {

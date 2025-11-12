@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IRefundService, RefundService>();
         services.AddScoped<ISecurityIncidentResponseService, SecurityIncidentResponseService>();
         services.AddScoped<Domain.Interfaces.IIncidentReportGenerator, IncidentReportGenerator>();
+        services.AddScoped<IFxConversionService, FxConversionService>();
         
         // Register PaymentProviderCatalog configuration options
         services.AddOptions<PaymentProviderCatalogOptions>()

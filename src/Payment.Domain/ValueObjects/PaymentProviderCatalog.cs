@@ -209,5 +209,54 @@ public static class PaymentProviderCatalog
             .Where(p => p.IsActive)
             .ToList();
     }
+
+    /// <summary>
+    /// Gets all supported currencies for a specific provider across all countries.
+    /// Returns distinct currency codes that the provider supports.
+    /// </summary>
+    /// <param name="providerName">Name of the payment provider (e.g., "Stripe", "ZainCash")</param>
+    /// <returns>List of supported currency codes (ISO 4217)</returns>
+    public static IReadOnlyList<string> GetProviderCurrencies(string providerName)
+    {
+        if (string.IsNullOrWhiteSpace(providerName))
+            return Array.Empty<string>();
+
+        return Catalog.Values
+            .SelectMany(providers => providers)
+            .Where(p => p.ProviderName.Equals(providerName, StringComparison.OrdinalIgnoreCase) && p.IsActive)
+            .Select(p => p.Currency)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Checks if a provider supports a specific currency.
+    /// </summary>
+    /// <param name="providerName">Name of the payment provider</param>
+    /// <param name="currency">Currency code to check (ISO 4217)</param>
+    /// <returns>True if the provider supports the currency, false otherwise</returns>
+    public static bool ProviderSupportsCurrency(string providerName, string currency)
+    {
+        if (string.IsNullOrWhiteSpace(providerName) || string.IsNullOrWhiteSpace(currency))
+            return false;
+
+        return Catalog.Values
+            .SelectMany(providers => providers)
+            .Any(p => p.ProviderName.Equals(providerName, StringComparison.OrdinalIgnoreCase) &&
+                     p.Currency.Equals(currency, StringComparison.OrdinalIgnoreCase) &&
+                     p.IsActive);
+    }
+
+    /// <summary>
+    /// Gets the primary/default currency for a provider.
+    /// Returns the first supported currency, or null if provider not found.
+    /// </summary>
+    /// <param name="providerName">Name of the payment provider</param>
+    /// <returns>Primary currency code, or null if provider not found</returns>
+    public static string? GetProviderPrimaryCurrency(string providerName)
+    {
+        var currencies = GetProviderCurrencies(providerName);
+        return currencies.FirstOrDefault();
+    }
 }
 

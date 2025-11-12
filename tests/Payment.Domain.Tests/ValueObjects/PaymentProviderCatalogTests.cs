@@ -332,5 +332,193 @@ public class PaymentProviderCatalogTests
         firstCall.Count.Should().Be(secondCall.Count);
         firstCall.Should().BeEquivalentTo(secondCall);
     }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldReturnCurrencies_ForStripe()
+    {
+        // Act
+        var currencies = PaymentProviderCatalog.GetProviderCurrencies("Stripe");
+
+        // Assert
+        currencies.Should().NotBeNull();
+        currencies.Should().NotBeEmpty();
+        currencies.Should().Contain("KWD");
+        currencies.Should().Contain("AED");
+    }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldReturnMultipleCurrencies_ForZainCash()
+    {
+        // Act
+        var currencies = PaymentProviderCatalog.GetProviderCurrencies("ZainCash");
+
+        // Assert
+        currencies.Should().NotBeNull();
+        currencies.Should().NotBeEmpty();
+        currencies.Should().Contain("IQD");
+        currencies.Should().Contain("USD");
+    }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldReturnDistinctCurrencies()
+    {
+        // Act
+        var currencies = PaymentProviderCatalog.GetProviderCurrencies("Stripe");
+
+        // Assert
+        currencies.Should().NotBeNull();
+        currencies.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldReturnEmptyList_ForUnknownProvider()
+    {
+        // Act
+        var currencies = PaymentProviderCatalog.GetProviderCurrencies("UnknownProvider");
+
+        // Assert
+        currencies.Should().NotBeNull();
+        currencies.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldReturnEmptyList_ForNullProviderName()
+    {
+        // Act
+        var currencies = PaymentProviderCatalog.GetProviderCurrencies(null!);
+
+        // Assert
+        currencies.Should().NotBeNull();
+        currencies.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldReturnEmptyList_ForEmptyProviderName()
+    {
+        // Act
+        var currencies = PaymentProviderCatalog.GetProviderCurrencies(string.Empty);
+
+        // Assert
+        currencies.Should().NotBeNull();
+        currencies.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetProviderCurrencies_ShouldBeCaseInsensitive()
+    {
+        // Act
+        var upperCase = PaymentProviderCatalog.GetProviderCurrencies("STRIPE");
+        var lowerCase = PaymentProviderCatalog.GetProviderCurrencies("stripe");
+        var mixedCase = PaymentProviderCatalog.GetProviderCurrencies("Stripe");
+
+        // Assert
+        upperCase.Should().BeEquivalentTo(lowerCase);
+        upperCase.Should().BeEquivalentTo(mixedCase);
+    }
+
+    [Fact]
+    public void ProviderSupportsCurrency_ShouldReturnTrue_WhenProviderSupportsCurrency()
+    {
+        // Act
+        var supports = PaymentProviderCatalog.ProviderSupportsCurrency("Stripe", "KWD");
+
+        // Assert
+        supports.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ProviderSupportsCurrency_ShouldReturnFalse_WhenProviderDoesNotSupportCurrency()
+    {
+        // Act
+        var supports = PaymentProviderCatalog.ProviderSupportsCurrency("Stripe", "EUR");
+
+        // Assert
+        supports.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ProviderSupportsCurrency_ShouldReturnFalse_ForUnknownProvider()
+    {
+        // Act
+        var supports = PaymentProviderCatalog.ProviderSupportsCurrency("UnknownProvider", "USD");
+
+        // Assert
+        supports.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ProviderSupportsCurrency_ShouldBeCaseInsensitive()
+    {
+        // Act
+        var upperCase = PaymentProviderCatalog.ProviderSupportsCurrency("STRIPE", "KWD");
+        var lowerCase = PaymentProviderCatalog.ProviderSupportsCurrency("stripe", "kwd");
+        var mixedCase = PaymentProviderCatalog.ProviderSupportsCurrency("Stripe", "Kwd");
+
+        // Assert
+        upperCase.Should().BeTrue();
+        lowerCase.Should().BeTrue();
+        mixedCase.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ProviderSupportsCurrency_ShouldReturnFalse_ForNullProviderName()
+    {
+        // Act
+        var supports = PaymentProviderCatalog.ProviderSupportsCurrency(null!, "USD");
+
+        // Assert
+        supports.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ProviderSupportsCurrency_ShouldReturnFalse_ForNullCurrency()
+    {
+        // Act
+        var supports = PaymentProviderCatalog.ProviderSupportsCurrency("Stripe", null!);
+
+        // Assert
+        supports.Should().BeFalse();
+    }
+
+    [Fact]
+    public void GetProviderPrimaryCurrency_ShouldReturnFirstCurrency_ForProvider()
+    {
+        // Act
+        var primaryCurrency = PaymentProviderCatalog.GetProviderPrimaryCurrency("ZainCash");
+
+        // Assert
+        primaryCurrency.Should().NotBeNull();
+        primaryCurrency.Should().BeOneOf("IQD", "USD");
+    }
+
+    [Fact]
+    public void GetProviderPrimaryCurrency_ShouldReturnNull_ForUnknownProvider()
+    {
+        // Act
+        var primaryCurrency = PaymentProviderCatalog.GetProviderPrimaryCurrency("UnknownProvider");
+
+        // Assert
+        primaryCurrency.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetProviderPrimaryCurrency_ShouldReturnNull_ForNullProviderName()
+    {
+        // Act
+        var primaryCurrency = PaymentProviderCatalog.GetProviderPrimaryCurrency(null!);
+
+        // Assert
+        primaryCurrency.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetProviderPrimaryCurrency_ShouldReturnNull_ForEmptyProviderName()
+    {
+        // Act
+        var primaryCurrency = PaymentProviderCatalog.GetProviderPrimaryCurrency(string.Empty);
+
+        // Assert
+        primaryCurrency.Should().BeNull();
+    }
 }
 
