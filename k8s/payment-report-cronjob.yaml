@@ -23,11 +23,31 @@ spec:
             component: reporting
             job: monthly-report
         spec:
+          serviceAccountName: payment-report-sa
+          automountServiceAccountToken: false
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: payment-report
               image: yourregistry/payment-service:latest
               imagePullPolicy: Always
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 10001
+                runAsGroup: 10001
+                capabilities:
+                  drop:
+                    - ALL
+                seccompProfile:
+                  type: RuntimeDefault
               command: ["dotnet", "Payment.API.dll", "--generate-report"]
               envFrom:
                 - configMapRef:
@@ -44,15 +64,14 @@ spec:
                 limits:
                   memory: "512Mi"
                   cpu: "500m"
-              # Health check to ensure job completes successfully
-              livenessProbe:
-                exec:
-                  command:
-                    - /bin/sh
-                    - -c
-                    - "exit 0"  # Job-based, no liveness needed
-                initialDelaySeconds: 0
-                periodSeconds: 10
-          # Optional: Add service account for RBAC if needed
-          # serviceAccountName: payment-service-account
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+                - name: var-tmp
+                  mountPath: /var/tmp
+          volumes:
+            - name: tmp
+              emptyDir: {}
+            - name: var-tmp
+              emptyDir: {}
 

@@ -1,0 +1,210 @@
+# NetworkPolicy for Payment API - Allow ingress from external and egress to postgres and tracing
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-api-netpol
+  namespace: payment
+spec:
+  podSelector:
+    matchLabels:
+      app: payment-api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from LoadBalancer/Ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx  # Adjust based on your ingress controller namespace
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8081
+    # Allow health checks from kube-system
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow egress to PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow egress to Jaeger
+    - to:
+        - podSelector:
+            matchLabels:
+              app: jaeger
+      ports:
+        - protocol: UDP
+          port: 6831
+        - protocol: TCP
+          port: 14268
+    # Allow egress to Zipkin
+    - to:
+        - podSelector:
+            matchLabels:
+              app: zipkin
+      ports:
+        - protocol: TCP
+          port: 9411
+    # Allow HTTPS for external API calls (payment providers)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# NetworkPolicy for PostgreSQL - Only allow ingress from Payment API
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-netpol
+  namespace: payment
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from Payment API only
+    - from:
+        - podSelector:
+            matchLabels:
+              app: payment-api
+      ports:
+        - protocol: TCP
+          port: 5432
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow egress for backups/external connections if needed
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# NetworkPolicy for Jaeger - Allow ingress from Payment API
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: jaeger-netpol
+  namespace: payment
+spec:
+  podSelector:
+    matchLabels:
+      app: jaeger
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from Payment API
+    - from:
+        - podSelector:
+            matchLabels:
+              app: payment-api
+      ports:
+        - protocol: UDP
+          port: 6831
+        - protocol: TCP
+          port: 14268
+        - protocol: TCP
+          port: 16686
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+---
+# NetworkPolicy for Zipkin - Allow ingress from Payment API
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zipkin-netpol
+  namespace: payment
+spec:
+  podSelector:
+    matchLabels:
+      app: zipkin
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from Payment API
+    - from:
+        - podSelector:
+            matchLabels:
+              app: payment-api
+      ports:
+        - protocol: TCP
+          port: 9411
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+---
+# NetworkPolicy for Payment Report CronJob - Allow egress to postgres
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-report-netpol
+  namespace: payment
+spec:
+  podSelector:
+    matchLabels:
+      component: reporting
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []  # No ingress needed for jobs
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow egress to PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+

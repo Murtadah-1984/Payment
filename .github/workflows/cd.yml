@@ -204,12 +204,15 @@ jobs:
           # Update image tag in deployment
           sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.determine-environment.outputs.version }}|g" k8s/payment-deployment.yaml
           
-          # Apply Kubernetes manifests
+          # Apply Kubernetes manifests (order matters for dependencies)
           kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/serviceaccounts.yaml
+          kubectl apply -f k8s/rbac.yaml
           kubectl apply -f k8s/configmap.yaml
           kubectl apply -f k8s/secret.yaml
           kubectl apply -f k8s/payment-deployment.yaml
           kubectl apply -f k8s/hpa.yaml
+          kubectl apply -f k8s/networkpolicies.yaml
           
           # Wait for rollout
           kubectl rollout status deployment/payment-api -n payment-system --timeout=5m
@@ -254,12 +257,15 @@ jobs:
           # Update image tag in deployment
           sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.determine-environment.outputs.version }}|g" k8s/payment-deployment.yaml
           
-          # Apply Kubernetes manifests
+          # Apply Kubernetes manifests (order matters for dependencies)
           kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/serviceaccounts.yaml
+          kubectl apply -f k8s/rbac.yaml
           kubectl apply -f k8s/configmap.yaml
           kubectl apply -f k8s/secret.yaml
           kubectl apply -f k8s/payment-deployment.yaml
           kubectl apply -f k8s/hpa.yaml
+          kubectl apply -f k8s/networkpolicies.yaml
           
           # Wait for rollout
           kubectl rollout status deployment/payment-api -n payment-system --timeout=10m

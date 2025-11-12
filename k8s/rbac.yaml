@@ -1,0 +1,65 @@
+# RBAC for Payment API ServiceAccount
+# Only grant permissions if the application needs to interact with Kubernetes API
+# For stateless microservices, typically no RBAC permissions are needed
+# This is a template - adjust based on actual requirements
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: payment-api-role
+  namespace: payment
+rules: []
+  # Example: If payment API needs to read ConfigMaps/Secrets at runtime
+  # Uncomment and add rules above if needed:
+  # - apiGroups: [""]
+  #   resources: ["configmaps", "secrets"]
+  #   verbs: ["get", "list"]
+  # Example: If payment API needs to create events
+  # - apiGroups: [""]
+  #   resources: ["events"]
+  #   verbs: ["create", "patch"]
+  # For most stateless APIs, no permissions are needed
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: payment-api-rolebinding
+  namespace: payment
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: payment-api-role
+subjects:
+  - kind: ServiceAccount
+    name: payment-api-sa
+    namespace: payment
+---
+# RBAC for Payment Report CronJob
+# Only if the job needs to interact with Kubernetes API
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: payment-report-role
+  namespace: payment
+rules: []
+  # Example: If report job needs to read ConfigMaps/Secrets
+  # Uncomment and add rules above if needed:
+  # - apiGroups: [""]
+  #   resources: ["configmaps", "secrets"]
+  #   verbs: ["get", "list"]
+  # For most reporting jobs, no permissions are needed
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: payment-report-rolebinding
+  namespace: payment
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: payment-report-role
+subjects:
+  - kind: ServiceAccount
+    name: payment-report-sa
+    namespace: payment
+

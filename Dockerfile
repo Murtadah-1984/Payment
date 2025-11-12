@@ -27,8 +27,17 @@ WORKDIR /app
 # Install EF Core tools for migrations
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser -u 10001 appuser
+
 # Copy published files
 COPY --from=build /app/publish .
+
+# Create directory for app data and set ownership
+RUN mkdir -p /app/data && chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose ports
 EXPOSE 8080
