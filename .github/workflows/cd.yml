@@ -142,7 +142,8 @@ jobs:
           retention-days: 90
 
       - name: Image digest
-        run: echo "Image digest: ${{ steps.build.outputs.digest }}"
+        run: |
+          echo "Image digest: ${{ steps.build.outputs.digest }}"
 
   # Security Scan Docker Image
   scan-image:
@@ -215,16 +216,16 @@ jobs:
           kubectl apply -f k8s/networkpolicies.yaml
           
           # Wait for rollout
-          kubectl rollout status deployment/payment-api -n payment-system --timeout=5m
+          kubectl rollout status deployment/payment-api -n payment --timeout=5m
           
           # Get service URL
-          SERVICE_URL=$(kubectl get service payment-api -n payment-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' || echo "N/A")
+          SERVICE_URL=$(kubectl get service payment-service -n payment -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' || echo "N/A")
           echo "url=http://$SERVICE_URL" >> $GITHUB_OUTPUT
 
       - name: Verify deployment
         run: |
-          kubectl get pods -n payment-system
-          kubectl get services -n payment-system
+          kubectl get pods -n payment
+          kubectl get services -n payment
 
   # Production Deployment (Manual Approval)
   deploy-production:
@@ -268,10 +269,10 @@ jobs:
           kubectl apply -f k8s/networkpolicies.yaml
           
           # Wait for rollout
-          kubectl rollout status deployment/payment-api -n payment-system --timeout=10m
+          kubectl rollout status deployment/payment-api -n payment --timeout=10m
           
           # Get service URL
-          SERVICE_URL=$(kubectl get service payment-api -n payment-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' || echo "N/A")
+          SERVICE_URL=$(kubectl get service payment-service -n payment -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' || echo "N/A")
           echo "url=https://$SERVICE_URL" >> $GITHUB_OUTPUT
 
       - name: Run smoke tests
