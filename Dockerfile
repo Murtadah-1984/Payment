@@ -9,8 +9,8 @@ COPY ["src/Payment.Application/Payment.Application.csproj", "src/Payment.Applica
 COPY ["src/Payment.Domain/Payment.Domain.csproj", "src/Payment.Domain/"]
 COPY ["src/Payment.Infrastructure/Payment.Infrastructure.csproj", "src/Payment.Infrastructure/"]
 
-# Restore dependencies
-RUN dotnet restore "Payment.sln"
+# Restore dependencies (restore API project which will restore all dependencies)
+RUN dotnet restore "src/Payment.API/Payment.API.csproj"
 
 # Copy all source files
 COPY . .
