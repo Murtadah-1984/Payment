@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: payment-postgres
+    environment:
+      POSTGRES_DB: PaymentDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment-api
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=PaymentDb;Username=postgres;Password=postgres
+      - Auth__Authority=https://identity.yourdomain.com
+      - Auth__Audience=payment-service
+      # OpenTelemetry Configuration (Observability #15)
+      - OpenTelemetry__UseConsoleExporter=true
+      - OpenTelemetry__Jaeger__Host=jaeger
+      - OpenTelemetry__Jaeger__Port=6831
+      - OpenTelemetry__Zipkin__Endpoint=http://zipkin:9411/api/v2/spans
+    depends_on:
+      postgres:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+      zipkin:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Jaeger for distributed tracing (Observability #15)
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: payment-jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "6831:6831/udp"  # Jaeger agent (UDP)
+      - "6832:6832/udp"  # Jaeger agent (UDP)
+      - "14268:14268"  # Jaeger collector (HTTP)
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:14269/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Zipkin for distributed tracing (Observability #15) - Alternative to Jaeger
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: payment-zipkin
+    ports:
+      - "9411:9411"  # Zipkin UI
+    environment:
+      - STORAGE_TYPE=mem
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+

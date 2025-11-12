@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zipkin
+  namespace: payment
+  labels:
+    app: zipkin
+    component: tracing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zipkin
+  template:
+    metadata:
+      labels:
+        app: zipkin
+        component: tracing
+    spec:
+      containers:
+      - name: zipkin
+        image: openzipkin/zipkin:3.3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9411
+          name: http
+          protocol: TCP
+        env:
+        - name: STORAGE_TYPE
+          value: "mem"
+        - name: JAVA_OPTS
+          value: "-Xms256m -Xmx512m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9411
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9411
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin
+  namespace: payment
+spec:
+  type: LoadBalancer
+  selector:
+    app: zipkin
+  ports:
+  - name: http
+    port: 9411
+    targetPort: 9411
+

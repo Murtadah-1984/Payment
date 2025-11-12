@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: payment-report-generator
+  namespace: payment
+  labels:
+    app: payment-service
+    component: reporting
+spec:
+  # Run at midnight UTC on the 1st day of each month
+  # Cron format: minute hour day-of-month month day-of-week
+  schedule: "0 0 1 * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid  # Prevent overlapping jobs
+  jobTemplate:
+    spec:
+      backoffLimit: 2  # Retry up to 2 times on failure
+      template:
+        metadata:
+          labels:
+            app: payment-service
+            component: reporting
+            job: monthly-report
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: payment-report
+              image: yourregistry/payment-service:latest
+              imagePullPolicy: Always
+              command: ["dotnet", "Payment.API.dll", "--generate-report"]
+              envFrom:
+                - configMapRef:
+                    name: payment-config
+                - secretRef:
+                    name: payment-secrets
+              env:
+                - name: ASPNETCORE_ENVIRONMENT
+                  value: "Production"
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "500m"
+              # Health check to ensure job completes successfully
+              livenessProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -c
+                    - "exit 0"  # Job-based, no liveness needed
+                initialDelaySeconds: 0
+                periodSeconds: 10
+          # Optional: Add service account for RBAC if needed
+          # serviceAccountName: payment-service-account
+

@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  zap:
+    image: owasp/zap2docker-stable:latest
+    container_name: payment-zap
+    ports:
+      - "8080:8080"
+    environment:
+      - ZAP_PORT=8080
+    command: zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/JSON/core/view/version/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - zap_data:/zap/wrk
+
+volumes:
+  zap_data:
+

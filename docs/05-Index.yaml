@@ -1,0 +1,137 @@
+# Semantic Index for Payment Microservice Documentation
+# This file serves as a machine-readable sitemap for AI context routing and RAG systems
+
+index:
+  version: "1.0"
+  last_updated: "2025-01-15"
+  
+  overview:
+    - path: "docs/00-Overview/README.md"
+      title: "Payment Microservice Overview"
+      tags: ["overview", "introduction", "features", "prerequisites"]
+      priority: "high"
+  
+  architecture:
+    - path: "docs/01-Architecture/System_Architecture.md"
+      title: "System Architecture"
+      tags: ["architecture", "clean-architecture", "layers", "cqrs", "solid"]
+      priority: "high"
+    - path: "docs/01-Architecture/Authentication_Flow.md"
+      title: "Authentication & Security Flow"
+      tags: ["authentication", "jwt", "security", "oauth2", "oidc"]
+      priority: "high"
+  
+  payment:
+    - path: "docs/02-Payment/Payment_Microservice.md"
+      title: "Payment Microservice"
+      tags: ["payment", "api", "endpoints", "providers"]
+      priority: "high"
+    - path: "docs/02-Payment/Reporting_Module.md"
+      title: "Automated Monthly Reporting"
+      tags: ["reporting", "monthly-reports", "cronjob", "prometheus"]
+      priority: "medium"
+    - path: "docs/02-Payment/Security_Policy.md"
+      title: "Security Policy & Compliance"
+      tags: ["security", "pci-dss", "encryption", "webhooks", "idempotency"]
+      priority: "high"
+    - path: "docs/02-Payment/TapToPay_Integration.md"
+      title: "Tap Payment Provider Integration"
+      tags: ["tap", "payment-provider", "integration"]
+      priority: "medium"
+    - path: "docs/02-Payment/GraphQL_Support.md"
+      title: "GraphQL Support"
+      tags: ["graphql", "api", "queries", "mutations", "hotchocolate"]
+      priority: "medium"
+    - path: "docs/02-Payment/Incident_Response_Service.md"
+      title: "Incident Response Service"
+      tags: ["incident-response", "payment-failures", "monitoring", "alerts", "refunds", "circuit-breaker"]
+      priority: "high"
+    - path: "docs/02-Payment/Security_Incident_Response_Service.md"
+      title: "Security Incident Response Service"
+      tags: ["security", "incident-response", "security-incidents", "containment", "credential-revocation", "admin-endpoints", "audit-logging"]
+      priority: "high"
+    - path: "docs/02-Payment/Alerting_Service.md"
+      title: "Automated Alerting Service"
+      tags: ["alerting", "monitoring", "notifications", "prometheus", "metrics", "email", "slack", "pagerduty", "sms"]
+      priority: "high"
+    - path: "docs/02-Payment/Credential_Revocation_Service.md"
+      title: "Credential Revocation Service"
+      tags: ["security", "credential-revocation", "jwt", "api-keys", "secret-rotation", "kubernetes", "blacklist"]
+      priority: "high"
+    - path: "docs/02-Payment/Audit_Log_Querying.md"
+      title: "Audit Log Querying Tools"
+      tags: ["audit-logging", "compliance", "security", "querying", "reporting", "retention-policy"]
+      priority: "high"
+    - path: "docs/02-Payment/Incident_Report_Templates.md"
+      title: "Incident Report Templates"
+      tags: ["incident-reporting", "templates", "pdf-generation", "compliance", "documentation"]
+      priority: "high"
+  
+  infrastructure:
+    - path: "docs/03-Infrastructure/Kubernetes_Deployment.md"
+      title: "Kubernetes Deployment"
+      tags: ["kubernetes", "deployment", "docker", "k8s"]
+      priority: "high"
+    - path: "docs/03-Infrastructure/Observability.md"
+      title: "Observability & Monitoring"
+      tags: ["observability", "opentelemetry", "jaeger", "zipkin", "prometheus", "health-checks"]
+      priority: "medium"
+    - path: "docs/03-Infrastructure/Performance_Optimization.md"
+      title: "Performance & Optimization"
+      tags: ["performance", "caching", "database", "resilience", "rate-limiting"]
+      priority: "medium"
+  
+  guidelines:
+    - path: "docs/04-Guidelines/Coding_Standards.md"
+      title: "Coding Standards"
+      tags: ["coding-standards", "clean-code", "solid", "best-practices"]
+      priority: "high"
+    - path: "docs/04-Guidelines/Testing_Strategy.md"
+      title: "Testing Strategy"
+      tags: ["testing", "unit-tests", "integration-tests", "test-coverage"]
+      priority: "high"
+    - path: "docs/04-Guidelines/Naming_Conventions.md"
+      title: "Naming Conventions"
+      tags: ["naming-conventions", "code-style", "best-practices"]
+      priority: "medium"
+    - path: "docs/04-Guidelines/Extension_Guide.md"
+      title: "Extension Guide"
+      tags: ["extension", "providers", "factory-pattern", "strategy-pattern"]
+      priority: "high"
+    - path: "docs/04-Guidelines/Contributing.md"
+      title: "Contributing Guidelines"
+      tags: ["contributing", "development", "pull-requests"]
+      priority: "medium"
+
+# Semantic tags for AI context retrieval
+semantic_tags:
+  payment_processing:
+    - "docs/02-Payment/Payment_Microservice.md"
+    - "docs/02-Payment/GraphQL_Support.md"
+    - "docs/01-Architecture/System_Architecture.md"
+  
+  security:
+    - "docs/02-Payment/Security_Policy.md"
+    - "docs/02-Payment/Security_Incident_Response_Service.md"
+    - "docs/02-Payment/Credential_Revocation_Service.md"
+    - "docs/02-Payment/Audit_Log_Querying.md"
+    - "docs/01-Architecture/Authentication_Flow.md"
+  
+  deployment:
+    - "docs/03-Infrastructure/Kubernetes_Deployment.md"
+    - "docs/00-Overview/README.md"
+  
+  observability:
+    - "docs/03-Infrastructure/Observability.md"
+    - "docs/02-Payment/Reporting_Module.md"
+    - "docs/02-Payment/Incident_Response_Service.md"
+    - "docs/02-Payment/Security_Incident_Response_Service.md"
+    - "docs/02-Payment/Alerting_Service.md"
+    - "docs/02-Payment/Audit_Log_Querying.md"
+    - "docs/02-Payment/Incident_Report_Templates.md"
+  
+  development:
+    - "docs/04-Guidelines/Extension_Guide.md"
+    - "docs/04-Guidelines/Testing_Strategy.md"
+    - "docs/04-Guidelines/Contributing.md"
+

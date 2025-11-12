@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-config
+  namespace: payment
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+  Auth__Authority: "https://identity.yourdomain.com"
+  Auth__Audience: "payment-service"
+  # OpenTelemetry Configuration (Observability #15)
+  OpenTelemetry__UseConsoleExporter: "false"
+  OpenTelemetry__ServiceName: "Payment.API"
+  OpenTelemetry__ServiceVersion: "1.0.0"
+  OpenTelemetry__ServiceNamespace: "payment"
+  OpenTelemetry__SamplingRatio: "0.1"
+  OpenTelemetry__Jaeger__Host: "jaeger-agent"
+  OpenTelemetry__Jaeger__Port: "6831"
+  OpenTelemetry__Zipkin__Endpoint: "http://zipkin:9411/api/v2/spans"
+  OpenTelemetry__Otlp__Endpoint: ""
+
